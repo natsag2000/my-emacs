@@ -16,15 +16,11 @@
 (defvar abedra/packages '(ac-slime
                           auto-complete
                           autopair
-                          clojure-mode
-                          coffee-mode
-                          csharp-mode
                           deft
                           erlang
                           feature-mode
                           flycheck
                           gist
-                          go-mode
                           graphviz-dot-mode
                           haml-mode
                           haskell-mode
@@ -36,7 +32,6 @@
                           o-blog
                           org
                           paredit
-                          php-mode
                           puppet-mode
                           restclient
                           rvm
@@ -46,7 +41,11 @@
                           solarized-theme
                           web-mode
                           writegood-mode
-                          yaml-mode)
+                          yaml-mode
+			  multiple-cursors
+			  expand-region
+			  ace-jump-mode
+			  yasnippet)
   "Default packages")
 
 (defun abedra/packages-installed-p ()
@@ -177,7 +176,6 @@
   (setq slack-token "xoxp-14506718096-15147633905-19983226503-4b754e71fe")
   (setq slack-user-name "nagi"))
 
-
 (use-package alert
   :commands (alert)
   :init
@@ -189,22 +187,24 @@
 (key-chord-define-global "fj"     'undo)
 (key-chord-define-global ",."     "<>\C-b")
 
+;; multiple cursors
 (require 'multiple-cursors)
-
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
+;; expand-region
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
 
+;; ace-jump-mode
 (autoload 'ace-jump-mode "ace-jump-mode" "Emacs quick move minor mode" t)
 (define-key global-map (kbd "C-0") 'ace-jump-mode)
 
-(add-to-list 'load-path
-              "~/.emacs.d/plugins/yasnippet")
+;; yasnippet
 (require 'yasnippet)
 (yas-global-mode 1)
 
+;; https://github.com/CodyReichert/es6-snippets.git
 (add-to-list 'load-path "~/.emacs.d/es6-snippets")
 (require 'es6-snippets)
