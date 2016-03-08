@@ -1,0 +1,210 @@
+(setq user-full-name "Nagi Shagdar")
+(setq user-mail-address "")
+
+;;(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
+(require 'cl)
+
+(load "package")
+(package-initialize)
+(add-to-list 'package-archives
+             '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+
+(setq package-archive-enable-alist '(("melpa" deft magit)))
+
+(defvar abedra/packages '(ac-slime
+                          auto-complete
+                          autopair
+                          clojure-mode
+                          coffee-mode
+                          csharp-mode
+                          deft
+                          erlang
+                          feature-mode
+                          flycheck
+                          gist
+                          go-mode
+                          graphviz-dot-mode
+                          haml-mode
+                          haskell-mode
+                          htmlize
+                          magit
+                          markdown-mode
+                          marmalade
+                          nodejs-repl
+                          o-blog
+                          org
+                          paredit
+                          php-mode
+                          puppet-mode
+                          restclient
+                          rvm
+                          scala-mode
+                          smex
+                          sml-mode
+                          solarized-theme
+                          web-mode
+                          writegood-mode
+                          yaml-mode)
+  "Default packages")
+
+(defun abedra/packages-installed-p ()
+  (loop for pkg in abedra/packages
+        when (not (package-installed-p pkg)) do (return nil)
+        finally (return t)))
+
+(unless (abedra/packages-installed-p)
+  (message "%s" "Refreshing package database...")
+  (package-refresh-contents)
+  (dolist (pkg abedra/packages)
+    (when (not (package-installed-p pkg))
+      (package-install pkg))))
+
+(setq inhibit-splash-screen t
+      initial-scratch-message nil
+      initial-major-mode 'org-mode)
+
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+
+(delete-selection-mode t)
+(transient-mark-mode t)
+(setq x-select-enable-clipboard t)
+
+(when window-system
+  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+  ;; (set-face-attribute 'default nil
+  ;;                     :family "Inconsolata"
+  ;;                     :height 140
+  ;;                     :weight 'normal
+  ;;                     :width 'normal)
+
+  ;; (when (functionp 'set-fontset-font)
+  ;;   (set-fontset-font "fontset-default"
+  ;;                     'unicode
+  ;;                     (font-spec :family "DejaVu Sans Mono"
+  ;;                                :width 'normal
+  ;;                                :size 12.4
+  ;;                                :weight 'normal))))
+  (set-face-attribute 'default nil
+                    :family "Source Code Pro"
+                    :height 90
+                    :weight 'normal
+                    :width 'normal)
+  )
+
+(setq-default indicate-empty-lines t)
+(when (not indicate-empty-lines)
+  (toggle-indicate-empty-lines))
+
+(setq tab-width 2
+      indent-tabs-mode nil)
+
+(setq make-backup-files nil)
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+
+(global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "C-;") 'comment-or-uncomment-region)
+(global-set-key (kbd "M-/") 'hippie-expand)
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-c C-k") 'compile)
+(global-set-key (kbd "C-x g") 'magit-status)
+
+(global-set-key (kbd "C-x C-m") 'execute-extended-command)
+(global-set-key (kbd "C-c C-m") 'execute-extended-command)
+(global-set-key (kbd "C-x C-j") 'dired-jump)
+
+(setq echo-keystrokes 0.1
+      use-dialog-box nil
+      visible-bell t)
+(show-paren-mode t)
+
+(defvar abedra/vendor-dir (expand-file-name "vendor" user-emacs-directory))
+(add-to-list 'load-path abedra/vendor-dir)
+
+(dolist (project (directory-files abedra/vendor-dir t "\\w+"))
+  (when (file-directory-p project)
+    (add-to-list 'load-path project)))
+
+(setq org-log-done t
+      org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
+      org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
+(add-hook 'org-mode-hook
+          (lambda ()
+            (flyspell-mode)))
+(add-hook 'org-mode-hook
+          (lambda ()
+            (writegood-mode)))
+
+
+(ido-mode t)
+(setq ido-enable-flex-matching t
+      ido-use-virtual-buffers t)
+
+(setq column-number-mode t)
+
+(require 'autopair)
+
+(require 'auto-complete-config)
+(ac-config-default)
+
+
+(defun js-custom ()
+  "js-mode-hook"
+  (setq js-indent-level 2))
+
+(add-hook 'js-mode-hook 'js-custom)
+
+(if window-system
+    (load-theme 'solarized-light t)
+  (load-theme 'wombat t))
+
+;;; slack client
+(eval-when-compile (require 'use-package))
+
+(use-package slack
+  :commands (slack-start)
+  :init
+  (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
+  (setq slack-room-subscription '(test-group slackbot))
+  (setq slack-client-id "14506718096.19983960576")
+  (setq slack-client-secret "3c7f47ff1d0e76bc62c81a24c43efeff")
+  (setq slack-token "xoxp-14506718096-15147633905-19983226503-4b754e71fe")
+  (setq slack-user-name "nagi"))
+
+
+(use-package alert
+  :commands (alert)
+  :init
+  (setq alert-default-style 'notifier))
+
+(require 'key-chord)
+(key-chord-mode 1)
+
+(key-chord-define-global "fj"     'undo)
+(key-chord-define-global ",."     "<>\C-b")
+
+(require 'multiple-cursors)
+
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
+
+(autoload 'ace-jump-mode "ace-jump-mode" "Emacs quick move minor mode" t)
+(define-key global-map (kbd "C-0") 'ace-jump-mode)
+
+(add-to-list 'load-path
+              "~/.emacs.d/plugins/yasnippet")
+(require 'yasnippet)
+(yas-global-mode 1)
+
+(add-to-list 'load-path "~/.emacs.d/es6-snippets")
+(require 'es6-snippets)
