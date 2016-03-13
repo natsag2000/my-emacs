@@ -164,26 +164,9 @@
     (load-theme 'solarized-dark t)
   (load-theme 'wombat t))
 
-;;; slack client
-(eval-when-compile (require 'use-package))
-
-(use-package slack
-  :commands (slack-start)
-  :init
-  (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
-  (setq slack-room-subscription '(test-group slackbot))
-  (setq slack-client-id "14506718096.19983960576")
-  (setq slack-client-secret "3c7f47ff1d0e76bc62c81a24c43efeff")
-  (setq slack-token "xoxp-14506718096-15147633905-19983226503-4b754e71fe")
-  (setq slack-user-name "nagi"))
-
-(use-package alert
-  :commands (alert)
-  :init
-  (setq alert-default-style 'notifier))
-
 (require 'key-chord)
 (key-chord-mode 1)
+
 
 (key-chord-define-global "fj"     'undo)
 (key-chord-define-global ",."     "<>\C-b")
