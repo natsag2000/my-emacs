@@ -46,6 +46,8 @@
 			  expand-region
 			  ace-jump-mode
 			  yasnippet
+			  neotree
+			  minimap
 			  use-package)
   "Default packages")
 
@@ -161,7 +163,7 @@
 (add-hook 'js-mode-hook 'js-custom)
 
 (if window-system
-    (load-theme 'solarized-dark t)
+    (load-theme 'solarized-light t)
   (load-theme 'wombat t))
 
 (require 'key-chord)
@@ -192,3 +194,13 @@
 ;; https://github.com/CodyReichert/es6-snippets.git
 (add-to-list 'load-path "~/.emacs.d/es6-snippets")
 (require 'es6-snippets)
+
+;;
+(require 'neotree)
+(global-set-key [f8] 'neotree-toggle)
+;; every time opened let it find current file and jump to node
+(setq neo-smart-open t) 
+
+;; Shift arrow to switch buffer
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
