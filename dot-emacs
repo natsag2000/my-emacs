@@ -1,4 +1,4 @@
-(setq user-full-name "Nagi Shagdar")
+(setq user-full-name "Natsagdorj Shagdar (nagi)")
 (setq user-mail-address "")
 
 ;;(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
@@ -48,6 +48,7 @@
 			  yasnippet
 			  neotree
 			  minimap
+			  helm
 			  use-package)
   "Default packages")
 
@@ -117,8 +118,8 @@
 (global-set-key (kbd "C-c C-k") 'compile)
 (global-set-key (kbd "C-x g") 'magit-status)
 
-(global-set-key (kbd "C-x C-m") 'execute-extended-command)
-(global-set-key (kbd "C-c C-m") 'execute-extended-command)
+;;(global-set-key (kbd "C-x C-m") 'execute-extended-command)
+;;(global-set-key (kbd "C-c C-m") 'execute-extended-command)
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 
 (setq echo-keystrokes 0.1
@@ -204,3 +205,9 @@
 ;; Shift arrow to switch buffer
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
+
+;; helm configuration
+(require 'helm-config)
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-c C-m") 'helm-M-x)
+(global-set-key (kbd "C-x C-m") 'helm-M-x)
