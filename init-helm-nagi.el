@@ -60,4 +60,24 @@
 ;; Shell bindings
 (define-key shell-mode-map (kbd "M-p")               'helm-comint-input-ring) ; shell history.
 
+
+(helm-popup-tip-mode 1)
+
+;;; helm find files
+;;
+(define-key helm-find-files-map (kbd "C-d") 'helm-ff-persistent-delete)
+(define-key helm-buffer-map (kbd "C-d")     'helm-buffer-run-kill-persistent)
+(define-key helm-find-files-map (kbd "C-/") 'helm-ff-run-find-sh-command)
+
+;; Use default-as-input in grep
+(add-to-list 'helm-sources-using-default-as-input 'helm-source-grep)
+(add-to-list 'helm-sources-using-default-as-input 'helm-source-grep-ag)
+
+;;; Describe key-bindings
+;;
+;;
+;;(helm-descbinds-install)            ; C-h b, C-x C-h
+
 (provide 'init-helm-nagi)
+
+
