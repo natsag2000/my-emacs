@@ -113,6 +113,7 @@
   (setq custom-theme-directory nagi-theme-directory))
 
 ;; Load my favourite theme.
+;; under ~/.emacs.d/themes, git https://github.com/jd/naquadah-theme.git
 (add-hook 'emacs-startup-hook #'(lambda () (load-theme 'naquadah)))
 (custom-set-variables
  '(custom-safe-themes
