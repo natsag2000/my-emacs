@@ -457,8 +457,6 @@
           (message "Recompiling %s...FAILED" file))))))
 
 (use-package dired-async :config (dired-async-mode 1))
-(use-package smtpmail-async
-    :commands 'async-smtpmail-send-it)
 (use-package async-bytecomp
     :config (setq async-bytecomp-allowed-packages '(all)))
 
@@ -471,11 +469,75 @@
 
 ;; Zoom-window
 ;;
-;; (use-package zoom-window
-;;   :ensure t
-;;     :init (setq zoom-window-mode-line-color "DarkGreen")
-;;     :bind ("C-x C-z" . zoom-window-zoom))
+(use-package zoom-window
+  :ensure t
+    :init (setq zoom-window-mode-line-color "DarkGreen")
+    :bind ("C-x C-z" . zoom-window-zoom))
+
+
+;;; Info
+;;
+(use-package info
+    :init
+  (progn
+    ;; Additional info directories
+    (add-to-list 'Info-directory-list "/usr/local/share/info")
+    (add-to-list 'Info-directory-list "/usr/share/info")
+    (add-to-list 'Info-directory-list "~/elisp/info")
+    (add-to-list 'Info-directory-list "~/elisp/info/eshell-doc")
+    ;; Fancy faces in info.
+    (defface tv-info-ref-item
+        '((((background dark)) :background "DimGray" :foreground "Gold")
+          (((background light)) :background "firebrick" :foreground "LightGray"))
+      "Face for item stating with -- in info." :group 'Info :group 'faces)
+
+    (defvar tv-info-title-face 'tv-info-ref-item)
+    (defvar tv-info-underline 'underline)
+    (defvar info-unicode-quote-start (string 8216))
+    (defvar info-unicode-quote-end (string 8217))
+    (defvar info-unicode-quoted-regexp (format "[%s]\\([^%s%s]+\\)[%s]"
+                                               info-unicode-quote-start
+                                               info-unicode-quote-start
+                                               info-unicode-quote-end
+                                               info-unicode-quote-end
+                                               ))
+    (defun tv-font-lock-doc-rules ()
+      (font-lock-add-keywords
+       nil `(("[^\\s\][`]\\([^`']+\\)[`']?[^\\s\][']?" 1 font-lock-type-face)
+             (,info-unicode-quoted-regexp 1 font-lock-type-face)
+             ("^ --.*$" . tv-info-title-face)
+             ("[_]\\([^_]+\\)[_]" 1 tv-info-underline)
+             ("[\"]\\([^\"]*\\)[\"]" . font-lock-string-face)
+             ("\\*Warning:\\*" . font-lock-warning-face)
+             ("^ *\\([*•]\\) " 1 font-lock-variable-name-face)
+             ("^[[:upper:],]\\{2,\\}$" . font-lock-comment-face)
+             ("^[[:upper]][a-z- ]*:" . font-lock-variable-name-face)
+             )))
+
+    (add-hook 'Info-mode-hook 'tv-font-lock-doc-rules)))
+
+
+;;; emacs-wget site-lisp configuration
+;;
+;;
+(autoload 'wget "wget" "wget interface for Emacs." t)
+(autoload 'wget-web-page "wget" "wget interface to download whole web page." t)
+(use-package w3m-wget)
+;; Use wget in eshell.
+(defun eshell/wget (url)
+  (wget url))
+
+
+;;; Firefox protocol
+;;
+(autoload 'firefox-protocol-installer-install "firefox-protocol" nil t)
+
+;;; Org
+;;
+(use-package org :config (use-package org-config-nagi))
+
 
 
 ;; TODO: 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
+
