@@ -438,7 +438,8 @@
 ;;; Async
 ;;
 (use-package async
-    :config
+  :ensure t
+  :config
   (progn
     (defun tv/async-byte-compile-file (file)
       (interactive "fFile: ")
@@ -456,9 +457,11 @@
                   (error (ignore (message "Error: %s" (car err)))))
           (message "Recompiling %s...FAILED" file))))))
 
-(use-package dired-async :config (dired-async-mode 1))
+(use-package dired-async
+  :config (dired-async-mode 1))
+
 (use-package async-bytecomp
-    :config (setq async-bytecomp-allowed-packages '(all)))
+  :config (setq async-bytecomp-allowed-packages '(all)))
 
 ;;; Helm
 ;;
@@ -471,14 +474,14 @@
 ;;
 (use-package zoom-window
   :ensure t
-    :init (setq zoom-window-mode-line-color "DarkGreen")
-    :bind ("C-x C-z" . zoom-window-zoom))
+  :init (setq zoom-window-mode-line-color "DarkGreen")
+  :bind ("C-x C-z" . zoom-window-zoom))
 
 
 ;;; Info
 ;;
 (use-package info
-    :init
+  :init
   (progn
     ;; Additional info directories
     (add-to-list 'Info-directory-list "/usr/local/share/info")
@@ -487,8 +490,8 @@
     (add-to-list 'Info-directory-list "~/elisp/info/eshell-doc")
     ;; Fancy faces in info.
     (defface tv-info-ref-item
-        '((((background dark)) :background "DimGray" :foreground "Gold")
-          (((background light)) :background "firebrick" :foreground "LightGray"))
+      '((((background dark)) :background "DimGray" :foreground "Gold")
+        (((background light)) :background "firebrick" :foreground "LightGray"))
       "Face for item stating with -- in info." :group 'Info :group 'faces)
 
     (defvar tv-info-title-face 'tv-info-ref-item)
@@ -516,12 +519,12 @@
 
     (add-hook 'Info-mode-hook 'tv-font-lock-doc-rules)))
 
-
 ;;; emacs-wget site-lisp configuration
 ;;
 ;;
 (autoload 'wget "wget" "wget interface for Emacs." t)
 (autoload 'wget-web-page "wget" "wget interface to download whole web page." t)
+
 (use-package w3m-wget)
 ;; Use wget in eshell.
 (defun eshell/wget (url)
@@ -534,10 +537,36 @@
 
 ;;; Org
 ;;
-(use-package org :config (use-package org-config-nagi))
+(use-package org :ensure t :config (use-package org-config-nagi))
 
+;; ace-jump-mode
+(use-package ace-jump-mode
+  :ensure t
+  :init
+  (define-key global-map (kbd "C-0") 'ace-jump-mode))
 
+;; expand-region
+(use-package expand-region
+  :ensure t
+  :bind
+  ("C-=" . er/expand-region))
+
+(use-package multiple-cursors
+  :ensure t
+  :config
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
+
+;;; W3m
+;;
+(use-package w3m
+  :ensure t
+  :init (require 'config-w3m)
+  :bind ("<f7> h" . w3m)
+  :defer t)
 
 ;; TODO: 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
+
 
