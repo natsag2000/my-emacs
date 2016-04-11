@@ -566,6 +566,13 @@
   :bind ("<f7> h" . w3m)
   :defer t)
 
+;;; FUN GAME
+;;
+(use-package pacmacs :ensure t)
+
+;; 2048-game
+(use-package 2048-game :ensure t)
+
 ;; TODO: 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 
