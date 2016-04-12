@@ -573,6 +573,13 @@
 ;; 2048-game
 (use-package 2048-game :ensure t)
 
+;;; Emms
+;;
+(use-package emms
+  :ensure t
+  :config (use-package emms-vlc-config)
+  :commands (emms-stream-init))
+
 ;; TODO: 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 
