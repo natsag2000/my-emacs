@@ -580,6 +580,24 @@
   :config (use-package emms-vlc-config)
   :commands (emms-stream-init))
 
+;;; Magit
+;;
+(use-package magit
+  :init
+  (progn
+    (setq magit-status-buffer-name-format "*magit status: %a*")
+    (setq magit-restore-window-configuration t)
+    (setq git-commit-fill-column 120)
+    (setq git-commit-summary-max-length 80)
+    (setq auto-revert-verbose nil)
+    (setq magit-revision-show-gravatars nil)
+    (setq magit-uniquify-buffer-names nil))
+  :config
+  (bind-key "C" 'magit-commit-add-log magit-diff-mode-map)
+  (bind-key "C-]" 'magit-toggle-margin magit-log-mode-map)
+  :no-require t
+  :ensure t)
+
 ;; TODO: 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 
