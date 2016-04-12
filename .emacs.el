@@ -598,6 +598,98 @@
   :no-require t
   :ensure t)
 
+;;; linum-relative
+;;
+(use-package linum-relative
+  :ensure t
+  :commands (linum-relative-mode
+             helm-linum-relative-mode))
+
+;;; Eshell-config
+;;
+(use-package eshell
+    :init
+  (progn
+    ;; Eshell-prompt
+    (setq eshell-prompt-function
+          #'(lambda nil
+              (concat
+               (getenv "USER")
+               "@"
+               (system-name)
+               ":"
+               (abbreviate-file-name (eshell/pwd))
+               (if (= (user-uid) 0) " # " " $ "))))
+
+    ;; Compatibility 24.2/24.3
+    (unless (fboundp 'eshell-pcomplete)
+      (defalias 'eshell-pcomplete 'pcomplete))
+    (unless (fboundp 'eshell-complete-lisp-symbol)
+      (defalias 'eshell-complete-lisp-symbol 'lisp-complete-symbol))
+
+    (add-hook 'eshell-mode-hook #'(lambda ()
+                                    (setq eshell-pwd-convert-function (lambda (f)
+                                                                        (if (file-equal-p (file-truename f) "/")
+                                                                            "/" f)))
+                                    ;; Helm completion with pcomplete
+                                    (setq eshell-cmpl-ignore-case t)
+                                    (eshell-cmpl-initialize)
+                                    (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
+                                    ;; Helm lisp completion
+                                    (define-key eshell-mode-map [remap eshell-complete-lisp-symbol] 'helm-lisp-completion-at-point)
+                                    ;; Helm completion on eshell history.
+                                    (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
+                                    ;; Eshell prompt
+                                    (set-face-attribute 'eshell-prompt nil :foreground "DeepSkyBlue")
+                                    ;; Allow yanking right now instead of returning "Mark set"
+                                    (push-mark)))
+
+    ;; Eshell history size
+    (setq eshell-history-size 1000) ; Same as env var HISTSIZE.
+
+    ;; Eshell-banner
+    (setq eshell-banner-message (format "%s %s\nwith Emacs %s on %s"
+                                        (propertize
+                                         "Eshell session started on"
+                                         'face '((:foreground "Goldenrod")))
+                                        (propertize
+                                         (format-time-string "%c")
+                                         'face '((:foreground "magenta")))
+                                        (propertize emacs-version
+                                                    'face '((:foreground "magenta")))
+                                        (propertize
+                                         (with-temp-buffer
+                                           (call-process "uname" nil t nil "-r")
+                                           (buffer-string))
+                                         'face '((:foreground "magenta")))))
+
+    ;; Eshell-et-ansi-color
+    (ignore-errors
+      (dolist (i (list 'eshell-handle-ansi-color
+                       'eshell-handle-control-codes
+                       'eshell-watch-for-password-prompt))
+        (add-to-list 'eshell-output-filter-functions i)))
+
+    ;; Eshell-save-history-on-exit
+    ;; Possible values: t (always save), 'never, 'ask (default)
+    (setq eshell-save-history-on-exit t)
+
+    ;; Eshell-directory
+    (setq eshell-directory-name "~/.emacs.d/eshell/")
+
+    ;; Eshell-visual
+    (setq eshell-term-name "eterm-color")
+    (with-eval-after-load "em-term"
+      (dolist (i '("tmux" "htop" "ipython" "alsamixer" "git-log"))
+        (add-to-list 'eshell-visual-commands i))))
+  :config
+  ;; Finally load eshell on startup.
+  (add-hook 'emacs-startup-hook #'(lambda ()
+                                    (let ((default-directory (getenv "HOME")))
+                                      (command-execute 'eshell)
+                                      (bury-buffer)))))
+
+
 ;; TODO: 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 
