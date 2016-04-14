@@ -689,7 +689,9 @@
                                       (command-execute 'eshell)
                                       (bury-buffer)))))
 
-
+;;; Projectile
+;; http://tuhdo.github.io/helm-projectile.html 
+;;
 (use-package projectile
   :load-path "site-lisp/projectile"
   :ensure t
