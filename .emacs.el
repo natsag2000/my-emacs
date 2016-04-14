@@ -690,7 +690,25 @@
                                       (bury-buffer)))))
 
 
+(use-package projectile
+  :load-path "site-lisp/projectile"
+  :ensure t
+  :diminish projectile-mode
+  :commands projectile-global-mode
+  :defer 5
+  :bind-keymap ("C-c p" . projectile-command-map)
+  :config
+  (use-package helm-projectile
+    :config
+    (setq projectile-completion-system 'helm)
+    (helm-projectile-on))
+  (projectile-global-mode))
+
+(use-package helm-projectile 
+  :defer t :ensure t
+  :ensure helm-projectile)
+
+
 ;; TODO: 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
-
 
