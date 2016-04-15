@@ -116,10 +116,21 @@
 ;; under ~/.emacs.d/themes, git https://github.com/jd/naquadah-theme.git
 (add-hook 'emacs-startup-hook #'(lambda () (load-theme 'naquadah)))
 (custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(bmkp-last-as-first-bookmark-file "/home/nagi/.emacs.d/bookmarks")
  '(custom-safe-themes
    (quote
-    ("9ff70d8009ce8da6fa204e803022f8160c700503b6029a8d8880a7a78c5ff2e5" "5fa16199974646cc61ecec63b315701ad589aa28dfca282174e3fdd818b81d9d" default))))
-(custom-set-faces )
+    ("9ff70d8009ce8da6fa204e803022f8160c700503b6029a8d8880a7a78c5ff2e5" "5fa16199974646cc61ecec63b315701ad589aa28dfca282174e3fdd818b81d9d" default)))
+ '(diff-switches "-w"))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
 
 
 ;;; Frame and window config.
@@ -709,6 +720,11 @@
 (use-package helm-projectile 
   :defer t :ensure t
   :ensure helm-projectile)
+
+
+;;; Bookmark+
+;;
+(use-package bookmark+ :ensure t)
 
 
 ;; TODO: 
