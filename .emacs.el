@@ -1,8 +1,12 @@
 (setq user-full-name "Natsagdorj Shagdar (nagi)")
 (setq user-mail-address "")
 
-;;(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
 (require 'cl-lib)
+
+;; setting PATH for eshell
+;; (setenv "PATH" (concat
+;;                 "/home/nagi/.nvm" ":"
+;;                 (getenv "PATH")))
 
 
 
@@ -120,7 +124,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(bmkp-last-as-first-bookmark-file "/home/nagi/.emacs.d/bookmarks")
+ '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
    (quote
     ("9ff70d8009ce8da6fa204e803022f8160c700503b6029a8d8880a7a78c5ff2e5" "5fa16199974646cc61ecec63b315701ad589aa28dfca282174e3fdd818b81d9d" default)))
@@ -691,7 +695,7 @@
     ;; Eshell-visual
     (setq eshell-term-name "eterm-color")
     (with-eval-after-load "em-term"
-      (dolist (i '("tmux" "htop" "ipython" "alsamixer" "git-log"))
+      (dolist (i '("tmux" "htop" "alsamixer" "git-log"))
         (add-to-list 'eshell-visual-commands i))))
   :config
   ;; Finally load eshell on startup.
@@ -729,4 +733,3 @@
 
 ;; TODO: 
 (global-set-key (kbd "C-x C-j") 'dired-jump)
-
