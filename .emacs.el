@@ -751,13 +751,19 @@
                         "C-x w"     ; alternative to M-s ...
                         "C-c @"     ; hs-hide-show mode
                         "C-c p"     ; projectile
+                        "C-x j"     ; bookmark+
+                        "C-x C-z"   ; Zoom window
+                        "C-x"       ; general
                         "<f2>"
                         "<f9>"
                         (org-mode "C-c C-x")))
        :config  (guide-key-mode 1)
        :diminish guide-key-mode)
-(setq guide-key/guide-key-sequence '("C-x"))
 (setq guide-key/recursive-key-sequence-flag t)
+(setq guide-key/highlight-command-regexp
+      '("rectangle"
+        ("register" . font-lock-type-face)
+        ("bookmark" . "hot pink")))
 
 ;;; fancy-narrow
 (use-package fancy-narrow
@@ -910,5 +916,14 @@
 ;; TODO group it some where
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-;; TODO:
+;;; Web
+
+
+;; Bindings
+;;
 (global-set-key (kbd "C-x C-j") 'dired-jump)
+(global-set-key (kbd "C-z")                        nil) ; Disable `suspend-frame'.
+(global-set-key (kbd "C-!")                        'eshell-command)
+(global-set-key (kbd "C-c R")                      #'(lambda () (interactive) (revert-buffer t t)))
+(global-set-key (kbd "C-c W")                      'whitespace-mode)
+(global-set-key (kbd "C-M-j")                      #'(lambda () (interactive) (kill-sexp -1)))
