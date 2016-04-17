@@ -917,7 +917,19 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;;; Web
+;;
+(require 'init-nagi-web)
 
+;;; Development
+;;
+;;; js2
+;;
+(require 'init-javascript-nagi)
+
+;;; using Dash
+(if (eq system-type 'darwin)
+    (require 'init-mac-dash)
+  (require 'init-linux-dash))
 
 ;; Bindings
 ;;
