@@ -15,11 +15,13 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("melpa-stable" . "https://stable.melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")
+                         ("org" . "http://orgmode.org/elpa/")
                          ))
 
 (setq package-pinned-packages '((async . "melpa")
                                 (magit . "melpa-stable")
-                                (magit-popup . "melpa-stable")))
+                                (magit-popup . "melpa-stable")
+                                (org . "org")))
 
 ;;; use-package
 ;;
@@ -563,7 +565,8 @@
 
 ;;; Org
 ;;
-(use-package org :ensure t :config (use-package org-config-nagi))
+;;(use-package org :ensure t :config (use-package org-config-nagi))
+(require 'init-org-nagi)
 
 ;; ace-jump-mode
 (use-package ace-jump-mode
