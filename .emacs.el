@@ -30,6 +30,15 @@
 
 ;;; Global settings
 ;;
+(defconst na/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+(defun na/emacs-subdirectory (d) (expand-file-name d na/emacs-directory))
+(let* ((subdirs '("backups" "snippets" "ac-dict"))
+       (fulldirs (mapcar (lambda (d) (na/emacs-subdirectory d)) subdirs)))
+  (dolist (dir fulldirs)
+    (when (not (file-exists-p dir))
+      (message "Make directory: %s" dir)
+      (make-directory dir))))
+
 ;; confirm-quit-emacs
 (setq confirm-kill-emacs 'y-or-n-p)
 
@@ -933,6 +942,27 @@
 (if (eq system-type 'darwin)
     (require 'init-mac-dash)
   (require 'init-linux-dash))
+
+;;; Auto complete
+;;
+(use-package company
+  :ensure t
+  :init
+  (add-hook 'after-init-hook 'global-company-mode)
+  :diminish company-mode)
+(use-package company-quickhelp
+  :ensure t
+  :config
+  (company-quickhelp-mode 1))
+
+;;; Yasnippets
+;;
+(use-package yasnippet
+  :ensure t
+  :init
+  (yas-global-mode 1)
+  :config
+  (add-to-list 'yas-snippet-dirs (na/emacs-subdirectory "snippets")))
 
 ;; Bindings
 ;;
