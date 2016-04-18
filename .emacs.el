@@ -628,7 +628,7 @@
 ;;; Eshell-config
 ;;
 (use-package eshell
-    :init
+  :init
   (progn
     ;; Eshell-prompt
     (setq eshell-prompt-function
@@ -932,6 +932,8 @@
   (require 'init-linux-dash))
 
 ;; Bindings
+;;
+;; disable alt+space shortcut on unity in settings->keyboard->shortcuts-Windows
 ;;
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 (global-set-key (kbd "C-z")                        nil) ; Disable `suspend-frame'.
