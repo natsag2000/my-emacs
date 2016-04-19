@@ -1,42 +1,145 @@
-(setq user-full-name "Natsagdorj Shagdar (nagi)")
-(setq user-mail-address "")
+;;; Nagi's Emacs configuration file
+;;; -------------------------------
+;;
+;; shameless stolen from Howard Abrams
+;;
+;; TODO: one day do it with literal programming
 
-(require 'cl-lib)
+;;; GENERAL SETTINGS
+;;; ----------------
+
+;;; Directory location
+;;
+(defconst na/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+(defun na/emacs-subdirectory (d) (expand-file-name d na/emacs-directory))
+
+;;; Directory structure
+;;
+(let* ((subdirs '("elisp" "backups" "snippets" "ac-dict"))
+       (fulldirs (mapcar (lambda (d) (na/emacs-subdirectory d)) subdirs)))
+  (dolist (dir fulldirs)
+    (when (not (file-exists-p dir))
+      (message "Make directory: %s" dir)
+      (make-directory dir))))
+
+;;; Customization file
+;;
+;; settings in ui, menu will be saved here
+;;
+(setq custom-file (expand-file-name "custom.el" na/emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+
+;;; Setting up the Load Path
+;;
+;; extra packages not available via the package manager go in my
+;; personal stach at: $HOME/.emacs.d/elisp
+;;
+(add-to-list 'load-path (na/emacs-subdirectory "elisp"))
+(add-to-list 'load-path "~/elisp")
+(require 'cl)
+
+;;; PACKAGE INITIALIZATION
+;;; -----------------------
+
+;;; Package manager
+;;
+(require 'package)
+(setq package-archives '(("org" . "http://orgmode.org/elpa/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages")))
+
+(setq package-pinned-packages '((async . "melpa")
+                                (magit . "melpa-stable")
+                                (magit-popup . "melpa-stable")
+                                (org . "org")))
+(package-initialize)
+
+;; solution until all converted to use-package
+(defun packages-install (packages)
+  "Given a list of packages, this will install them from the standard locations."
+  (let ((to-install (inverse-filter 'package-installed-p packages)))
+    (when to-install
+      (package-refresh-contents)
+      (dolist (it to-install)
+        (package-install it)
+        (delete-other-windows)))))
+
+;;; Use-Package
+;;
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(require 'use-package)
+
+;;; VARIABLES
+;;; ---------
+(setq user-full-name "Natsagdorj Shagdar (nagi)")
+(if (equal "Workmachiname" system-name)
+    (setq user-mail-address "n.shagdar@dvz-mv.de")
+  (setq user-mail-address "natsag2000@gmail.com"))
+
+;;; Tabs vs Spaces
+;; Indent-only-with-spaces
+(setq-default indent-tabs-mode nil)
+(setq tab-width 2)
+
+;; make tab key to indent first then completion
+(setq-default tab-always-indent 'complete)
+
+
+;;; Encrypting Files
+;;
+;; on mac install gpg
+;; brew install gpg
+
+;; now, any file loaded with a gpg extension will prompt password
+(setq epa-file-select-keys 2)
+;; you can have emacs cache th password. not sure i do...
+(setq epa-file-cache-passphrase-for-symmetric-encryption t)
+
+;;; DISPLAY SETTINGS
+;;; ----------------
+;;
+(setq initial-scratch-message "") ;; Uh, I know what Scratch is for
+(setq visible-bell t)             ;; Get rid of the beeps
+(when (window-system)
+  (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+  (when (fboundp 'horizontal-scroll-bar-mode)
+    (horizontal-scroll-bar-mode -1))
+  (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+
+;;; Mode Line
+;;
+(require 'init-mode-line)
+
+;;; Whitespace Mode
+;;
+(use-package whitespace
+  :bind ("C-c T w" . whitespace-mode)
+  :init
+  (setq whitespace-line-column nil
+        whitespace-display-mappings '((space-mark 32 [183] [46])
+                                      (newline-mark 10 [9166 10])
+                                      (tab-mark 9 [9654 9] [92 9])))
+  :config
+  (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
+  :diminish whitespace-mode)
+
+
+
+
 
 ;; setting PATH for eshell
 (setenv "PATH" (concat
                 "/home/nagi/opt/browser/firefox" ":"
                 (getenv "PATH")))
 
-
-(load "package")
-(package-initialize)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("melpa-stable" . "https://stable.melpa.org/packages/")
-                         ("gnu" . "https://elpa.gnu.org/packages/")
-                         ("org" . "http://orgmode.org/elpa/")
-                         ))
-
-(setq package-pinned-packages '((async . "melpa")
-                                (magit . "melpa-stable")
-                                (magit-popup . "melpa-stable")
-                                (org . "org")))
-
-;;; use-package
-;;
-(eval-when-compile (require 'use-package))
-(setq use-package-verbose t)
-
-;;; Global settings
-;;
-(defconst na/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
-(defun na/emacs-subdirectory (d) (expand-file-name d na/emacs-directory))
-(let* ((subdirs '("backups" "snippets" "ac-dict"))
-       (fulldirs (mapcar (lambda (d) (na/emacs-subdirectory d)) subdirs)))
-  (dolist (dir fulldirs)
-    (when (not (file-exists-p dir))
-      (message "Make directory: %s" dir)
-      (make-directory dir))))
 
 ;; confirm-quit-emacs
 (setq confirm-kill-emacs 'y-or-n-p)
@@ -52,10 +155,10 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 
 ;; Affiche-l'heure-au-format-24h
-(setq display-time-24hr-format t)
-(setq display-time-day-and-date t)
-(display-time)
-(setq display-time-use-mail-icon t)
+;; (setq display-time-24hr-format t)
+;; (setq display-time-day-and-date t)
+;; (display-time)
+;; (setq display-time-use-mail-icon t)
 
 ;; Limite-max-lisp
 (setq max-lisp-eval-depth 40000)
@@ -138,7 +241,10 @@
  '(custom-safe-themes
    (quote
     ("9ff70d8009ce8da6fa204e803022f8160c700503b6029a8d8880a7a78c5ff2e5" "5fa16199974646cc61ecec63b315701ad589aa28dfca282174e3fdd818b81d9d" default)))
- '(diff-switches "-w"))
+ '(diff-switches "-w")
+ '(org-agenda-files
+   (quote
+    ("/home/nagi/org/personal/notes.org" "/home/nagi/org/personal/tasks.org"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -203,52 +309,52 @@
 ;;; Special buffer display.
 ;;
 ;;
-(setq special-display-regexps `(("\\*Help"
-                                 (minibuffer . nil)
-                                 (width . 80)
-                                 (height . 24)
-                                 (left-fringe . 0)
-                                 (border-width . 0)
-                                 (menu-bar-lines . 0)
-                                 (tool-bar-lines . 0)
-                                 (unsplittable . t)
-                                 (top . 24)
-                                 (left . 450)
-                                 (background-color . "Lightsteelblue1")
-                                 (foreground-color . "black")
-                                 (alpha . nil)
-                                 (fullscreen . nil))
-                                ("\\*Compile-Log"
-                                 (minibuffer . nil)
-                                 (width . 85)
-                                 (height . 24)
-                                 (left-fringe . 0)
-                                 (border-width . 0)
-                                 (menu-bar-lines . 0)
-                                 (tool-bar-lines . 0)
-                                 (unsplittable . t)
-                                 (top . 24)
-                                 (left . 450)
-                                 (background-color . "Brown4")
-                                 (foreground-color . "black")
-                                 (alpha . nil)
-                                 (fullscreen . nil))
-                                ("\\*Dict"
-                                 (minibuffer . nil)
-                                 (width . 80)
-                                 (height . 24)
-                                 (left-fringe . 0)
-                                 (border-width . 0)
-                                 (menu-bar-lines . 0)
-                                 (tool-bar-lines . 0)
-                                 (unsplittable . t)
-                                 (top . 24)
-                                 (left . 450)
-                                 (background-color . "LightSteelBlue")
-                                 (foreground-color . "DarkGoldenrod")
-                                 (alpha . nil)
-                                 (fullscreen . nil))
-                                ))
+;; (setq special-display-regexps `(("\\*Help"
+;;                                  (minibuffer . nil)
+;;                                  (width . 80)
+;;                                  (height . 24)
+;;                                  (left-fringe . 0)
+;;                                  (border-width . 0)
+;;                                  (menu-bar-lines . 0)
+;;                                  (tool-bar-lines . 0)
+;;                                  (unsplittable . t)
+;;                                  (top . 24)
+;;                                  (left . 450)
+;;                                  (background-color . "Lightsteelblue1")
+;;                                  (foreground-color . "black")
+;;                                  (alpha . nil)
+;;                                  (fullscreen . nil))
+;;                                 ("\\*Compile-Log"
+;;                                  (minibuffer . nil)
+;;                                  (width . 85)
+;;                                  (height . 24)
+;;                                  (left-fringe . 0)
+;;                                  (border-width . 0)
+;;                                  (menu-bar-lines . 0)
+;;                                  (tool-bar-lines . 0)
+;;                                  (unsplittable . t)
+;;                                  (top . 24)
+;;                                  (left . 450)
+;;                                  (background-color . "Brown4")
+;;                                  (foreground-color . "black")
+;;                                  (alpha . nil)
+;;                                  (fullscreen . nil))
+;;                                 ("\\*Dict"
+;;                                  (minibuffer . nil)
+;;                                  (width . 80)
+;;                                  (height . 24)
+;;                                  (left-fringe . 0)
+;;                                  (border-width . 0)
+;;                                  (menu-bar-lines . 0)
+;;                                  (tool-bar-lines . 0)
+;;                                  (unsplittable . t)
+;;                                  (top . 24)
+;;                                  (left . 450)
+;;                                  (background-color . "LightSteelBlue")
+;;                                  (foreground-color . "DarkGoldenrod")
+;;                                  (alpha . nil)
+;;                                  (fullscreen . nil))
+;;                                 ))
 
 ;; Don't split this windows horizontally
 (setq split-width-threshold nil)
@@ -353,8 +459,7 @@
 ;; Report bug
 (setq report-emacs-bug-no-explanations t)
 
-;; Indent-only-with-spaces
-(setq-default indent-tabs-mode nil)
+
 
 ;; Prompt shell read only
 (setq comint-prompt-read-only t)
@@ -404,26 +509,26 @@
 (set-face-attribute 'mode-line-emphasis nil :foreground "red")
 
 ;; World-time
-(add-to-list 'display-time-world-list '("Greenwich" "Greenwich"))
-(add-to-list 'display-time-world-list '("Australia/Sydney" "Sydney"))
-(add-to-list 'display-time-world-list '("Australia/Melbourne" "Melbourne"))
-(add-to-list 'display-time-world-list '("Australia/Canberra" "Canberra"))
-(add-to-list 'display-time-world-list '("America/Chicago" "Chicago"))
-(add-to-list 'display-time-world-list '("America/Denver" "Denver"))
-(add-to-list 'display-time-world-list '("America/Los_Angeles" "Los_Angeles/Seattle"))
-(add-to-list 'display-time-world-list '("America/Denver" "Moab"))
-(add-to-list 'display-time-world-list '("America/Vancouver" "Vancouver"))
-(add-to-list 'display-time-world-list '("America/Montreal" "Montreal"))
-(add-to-list 'display-time-world-list '("America/New_York" "Ottawa"))
-(add-to-list 'display-time-world-list '("Europe/Moscow" "Moscow"))
-(add-to-list 'display-time-world-list '("Europe/Berlin" "Berlin"))
-(add-to-list 'display-time-world-list '("Europe/Oslo" "Oslo"))
-(add-to-list 'display-time-world-list '("Europe/Lisbon" "Lisbon"))
-(add-to-list 'display-time-world-list '("Asia/Dubai" "Dubai"))
-(add-to-list 'display-time-world-list '("Asia/Tokyo" "Tokyo"))
-(add-to-list 'display-time-world-list '("Hongkong" "Hongkong"))
-(add-to-list 'display-time-world-list '("Indian/Antananarivo" "Antananarivo"))
-(add-to-list 'display-time-world-list '("Indian/Reunion" "Reunion"))
+;; (add-to-list 'display-time-world-list '("Greenwich" "Greenwich"))
+;; (add-to-list 'display-time-world-list '("Australia/Sydney" "Sydney"))
+;; (add-to-list 'display-time-world-list '("Australia/Melbourne" "Melbourne"))
+;; (add-to-list 'display-time-world-list '("Australia/Canberra" "Canberra"))
+;; (add-to-list 'display-time-world-list '("America/Chicago" "Chicago"))
+;; (add-to-list 'display-time-world-list '("America/Denver" "Denver"))
+;; (add-to-list 'display-time-world-list '("America/Los_Angeles" "Los_Angeles/Seattle"))
+;; (add-to-list 'display-time-world-list '("America/Denver" "Moab"))
+;; (add-to-list 'display-time-world-list '("America/Vancouver" "Vancouver"))
+;; (add-to-list 'display-time-world-list '("America/Montreal" "Montreal"))
+;; (add-to-list 'display-time-world-list '("America/New_York" "Ottawa"))
+;; (add-to-list 'display-time-world-list '("Europe/Moscow" "Moscow"))
+;; (add-to-list 'display-time-world-list '("Europe/Berlin" "Berlin"))
+;; (add-to-list 'display-time-world-list '("Europe/Oslo" "Oslo"))
+;; (add-to-list 'display-time-world-list '("Europe/Lisbon" "Lisbon"))
+;; (add-to-list 'display-time-world-list '("Asia/Dubai" "Dubai"))
+;; (add-to-list 'display-time-world-list '("Asia/Tokyo" "Tokyo"))
+;; (add-to-list 'display-time-world-list '("Hongkong" "Hongkong"))
+;; (add-to-list 'display-time-world-list '("Indian/Antananarivo" "Antananarivo"))
+;; (add-to-list 'display-time-world-list '("Indian/Reunion" "Reunion"))
 
 
 ;; flyspell-aspell
