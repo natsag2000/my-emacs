@@ -927,23 +927,6 @@
 ;; TODO group it some where
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-;;; Web
-;;
-(require 'init-nagi-web)
-
-
-
-
-;;; Development
-;;
-;;; js2
-;;
-(require 'init-javascript-nagi)
-
-;;; using Dash
-(if (eq system-type 'darwin)
-    (require 'init-mac-dash)
-  (require 'init-linux-dash))
 
 ;;; Auto complete
 ;;
@@ -1082,3 +1065,231 @@
     (lambda ()
       (interactive)
       (surround-text text))))
+
+
+;;; Grep for my Notes
+;;
+;; on CLI
+;; install on linux
+;; sudo apt-get install silversearcher-ag
+;; install on mac
+;;   brew tap homebrew/dupes
+;;   brew install homebrew/dupes/grep
+;;
+;; on Emacs
+;; Silver searcher
+;;
+;; - =ag-project-at-point= :: sets the query with the word at point, use: =C-c p s s=
+;; - =ag-regexp= :: searches for regular expressions in a chosen
+;;                  directory (*Note:* the =ag= command prompts with
+;;                  =regexp=, but it adds a =--literal= option to the command)
+;; - =C-u= :: Adding a prefix adds command line options, like =-s= or
+;;            =-i= to specify case-sensitivity.
+;; #+BEGIN_SRC org :tangle ~/.agignore
+;;   #.*
+;; #+END_SRC
+(use-package ag
+  :ensure    t
+  :commands  ag
+  :init      (setq ag-highlight-search t)
+  :config    (add-to-list 'ag-arguments "--word-regexp"))
+
+(use-package helm-ag
+  :ensure    t)
+
+;;; Recent files list
+;;
+;; Emacs already has the recent file
+;; listing available, just not turned on.
+(use-package recentf
+  :init
+  (setq recentf-max-menu-items 25)
+  (setq recentf-auto-cleanup 'never)
+  ;; (setq recentf-keep '(file-remote-p file-readable-p))
+  (recentf-mode 1)
+  :bind ("C-c f f" . recentf-open-files))
+
+;;; Line Numbers
+;;
+(add-hook 'prog-mode-hook 'linum-mode)
+;; If we make the line numbers a fixed size, then increasing or
+;;    decreasing the font size doesn't truncate the numbers:
+(defun fix-linum-size ()
+  (interactive)
+  (set-face-attribute 'linum nil :height 110))
+(add-hook 'linum-mode-hook 'fix-linum-size)
+
+;; If we alternate between line numbers and no-line numbers, I also
+;;    have to turn on/off the fringe. Actually, this is really only
+;;    useful when giving presentations.
+(defun linum-off-mode ()
+  "Toggles the line numbers as well as the fringe. This allows me
+     to maximize the screen estate."
+  (interactive)
+  (if linum-mode
+      (progn
+        (fringe-mode '(0 . 0))
+        (linum-mode -1))
+    (fringe-mode '(8 . 0))
+    (linum-mode 1)))
+
+(global-set-key (kbd "A-C-K") 'linum-off-mode)
+(global-set-key (kbd "s-C-K") 'linum-off-mode)  ;; For Linux
+
+;; I'm intrigued with the [[https://github.com/coldnew/linum-relative][linum-relative]] mode (especially since I can
+;;    toggle between them). The idea is that I can see the line that I
+;;    want to jump to (like one 9 lines away), and then =C-9 C-n= to
+;;    quickly pop to it.
+
+(use-package linum-relative
+  :ensure t
+  :config
+  ;; Otherwise, let's take advantage of the relative line numbering:
+  (defun linum-new-mode ()
+    "If line numbers aren't displayed, then display them.
+          Otherwise, toggle between absolute and relative numbers."
+    (interactive)
+    (if linum-mode
+        (linum-relative-toggle)
+      (linum-mode 1)))
+
+  :bind ("A-k" . linum-new-mode)
+  ("s-k" . linum-new-mode))   ;; For Linux
+
+;;; Flycheck
+;;
+(use-package flycheck
+  :ensure t
+  :init
+  (add-hook 'after-init-hook 'global-flycheck-mode)
+  :config
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+
+;;;; PROGRAMMING
+
+;;; Tag support
+
+;; All programming languages require some sort of tagging. but after
+;;    thirty years, we are still using good ol’ ctags...well,
+;;    [[http://ctags.sourceforge.net][Exuberant Ctags]].   Install with Homebrew:
+
+;;    #+BEGIN_SRC sh :tangle no
+;;      brew install --HEAD ctags
+;;    #+END_SRC
+
+;;    On Ubuntu Linux, do:
+
+;;    #+BEGIN_SRC sh :tangle no
+;;      sudo apt-get install -y exuberant-ctags
+;;    #+END_SRC
+
+;;    Note: for every project, run the following command:
+
+;;    #+BEGIN_SRC sh :tangle no
+;;      ctags -e -R .
+;;    #+END_SRC
+
+;;    I want to be able to add headers from my =org-mode= files as
+;;    a /language option/:
+
+;;    #+BEGIN_SRC sh :tangle ~/.ctags :comments no
+;;     --langdef=org
+;;     --langmap=org:.org
+;;     --regex-org=/^\*+[ \t]+([a-zA-Z0-9_ ]+)/\1/d,definition/
+;;    #+END_SRC
+
+;;    We access stuff by loading the =etags= package:
+
+(require 'etags)
+
+;; Now, use the following keys:
+
+;;    - M-. :: To find the tag at point to jump to the function’s
+;;             definition when the point is over a function call. It is a
+;;             dwim-type function.
+;;    - M-, :: jump back to where you were.
+;;    - M-? :: find a tag, that is, use the Tags file to look up a
+;;             definition. If there are multiple tags in the project with
+;;             the same name, use `C-u M-.’ to go to the next match.
+;;    - =M-x tags-search= :: regexp-search through the source files
+;;         indexed by a tags file (a bit like =grep=)
+;;    - =M-x tags-query-replace= :: query-replace through the source files
+;;         indexed by a tags file
+;;    - =M-x tags-apropos= :: list all tags in a tags file that match a
+;;         regexp
+;;    - =M-x list-tags= :: list all tags defined in a source file
+
+;;    With the fancy new [[https://marmalade-repo.org/packages/ctags-update][ctags-update]] package, we can update the tags file
+;;    whenever we save a file:
+(use-package ctags-update
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook  'turn-on-ctags-auto-update-mode)
+  :diminish ctags-auto-update-mode)
+
+;;And if I'm lazy and willing to use the mouse:
+(use-package imenu+
+  :ensure t
+  :init (add-hook 'prog-mode-hook 'imenup-add-defs-to-menubar)
+  (add-hook 'org-mode-hook  'imenup-add-defs-to-menubar))
+
+;;If I don't know what I'm after, Helm is better:
+(use-package helm
+  :bind (("C-c M-i" . helm-imenu)))
+
+(use-package guide-key
+       :init (add-to-list 'guide-key/guide-key-sequence "C-x c"))
+
+;; Emacs 25 changed has now deprecated the famous [[info:emacs#Tags][Tags and Friends]],
+;;    like =find-tags= for =xref=. Some point, I will have to learn how
+;;    to configure it, but until then, I'll just rebind to my old mates:
+
+(global-set-key (kbd "M-.") 'find-tag)
+(global-set-key (kbd "C-M-.") 'find-tag-regexp)
+(global-set-key (kbd "M-,") 'pop-tag-mark)
+(global-set-key (kbd "M-i") 'imenu-anywhere)
+
+;;Note: This prompt needs to go away:
+(setq tags-add-tables nil)
+
+;;; Code Block Folding
+
+;; The [[info:emacs#Hideshow][Hide Show Minor]] mode allows us to /fold/ all functions
+;;     (hidden), showing only the header lines. We need to turn on the
+;;     mode, so wrappers are in order:
+(defun ha/hs-show-all ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-show-all))
+
+(defun ha/hs-hide-all ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-hide-all))
+
+(defun ha/hs-toggle-hiding ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-toggle-hiding))
+
+;; Seems that =C-c @= is too obnoxious to use, so I'll put my
+;;     favorite on the =C-c h= prefix:
+(use-package hs-minor-mode
+  :bind
+  ("C-c T h" . hs-minor-mode)
+  ("C-c h a" . ha/hs-hide-all)
+  ("C-c h s" . ha/hs-show-all)
+  ("C-c h h" . ha/hs-toggle-hiding))
+
+;;; Web
+;;
+(require 'init-nagi-web)
+
+;;; js2
+;;
+(require 'init-javascript-nagi)
+
+;;; using Dash
+(if (eq system-type 'darwin)
+    (require 'init-mac-dash)
+  (require 'init-linux-dash))
