@@ -268,11 +268,6 @@
 ;;      '(mode-line-inactive ((t (:foreground "#000000" :background "#bbbbbb" :box nil)))))
 
 
-;; Browse url
-;;
-;;
-(setq browse-url-browser-function 'helm-browse-url-firefox)
-;;(setq browse-url-browser-function 'w3m-browse-url)
 
 ;;; Ediff
 ;;
@@ -589,13 +584,21 @@
   :bind
   ("C-=" . er/expand-region))
 
-;;; W3m
+;;; Emacs Browser setup
 ;;
-(use-package w3m
-  :ensure t
-  :init (require 'config-w3m)
-  :bind ("<f7> h" . w3m)
-  :defer t)
+(require 'init-browser-nagi)
+
+;; (use-package w3m
+;;   :ensure t
+;;   :init (require 'config-w3m)
+;;   :bind ("<f7> h" . w3m)
+;;   :defer t)
+
+;; TODO: could not run it!! resolve it!!
+;;(setq browse-url-browser-function 'helm-browse-url-firefox)
+;;(setq browse-url-browser-function 'w3m-browse-url)
+;; (setq browse-url-generic-program "firefox"
+;;       browse-url-generic-function 'browse-url-generic)
 
 ;;; FUN GAME
 ;;
@@ -931,6 +934,9 @@
 ;;; Web
 ;;
 (require 'init-nagi-web)
+
+
+
 
 ;;; Development
 ;;
