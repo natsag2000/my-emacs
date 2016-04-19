@@ -75,5 +75,4 @@
   :config
   (ace-link-setup-default))
 
-
 (provide 'init-browser-nagi)

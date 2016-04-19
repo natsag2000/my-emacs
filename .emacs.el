@@ -4,10 +4,9 @@
 (require 'cl-lib)
 
 ;; setting PATH for eshell
-;; (setenv "PATH" (concat
-;;                 "/home/nagi/.nvm" ":"
-;;                 (getenv "PATH")))
-
+(setenv "PATH" (concat
+                "/home/nagi/opt/browser/firefox" ":"
+                (getenv "PATH")))
 
 
 (load "package")
@@ -594,11 +593,8 @@
 ;;   :bind ("<f7> h" . w3m)
 ;;   :defer t)
 
-;; TODO: could not run it!! resolve it!!
-;;(setq browse-url-browser-function 'helm-browse-url-firefox)
+(setq browse-url-browser-function 'helm-browse-url-firefox)
 ;;(setq browse-url-browser-function 'w3m-browse-url)
-;; (setq browse-url-generic-program "firefox"
-;;       browse-url-generic-function 'browse-url-generic)
 
 ;;; FUN GAME
 ;;
