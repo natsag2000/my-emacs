@@ -176,7 +176,7 @@
 
 ;; auto-fill-mode
 ;; (set to 78 in files)
-(add-hook 'org-mode-hook 'auto-fill-mode)
+;;(add-hook 'org-mode-hook 'auto-fill-mode) ;; set in Fill Mode section in emacs.el
 
 ;; Use-enter-to-follow-links
 (setq org-return-follows-link t)
