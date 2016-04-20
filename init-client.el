@@ -56,7 +56,7 @@
 ;;   three magic frame settings:
 (when ha/fixed-font-family
   (set-frame-font ha/fixed-font-family)
-  (set-face-attribute 'default nil :font ha/fixed-font-family :height 150)
+  (set-face-attribute 'default nil :font ha/fixed-font-family :height 110)
   (set-face-font 'default ha/fixed-font-family))
 
 ;; Since the headers are based on Adobe’s open source font pair of the
@@ -143,7 +143,7 @@
          (secondary-color     (face-background 'secondary-selection nil 'region))
          (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
     (custom-theme-set-faces 'ha/org-theme
-                            `(org-agenda-structure ((t (:inherit default ,@ha/variable-font-tuple :height 2.0 :underline nil))))
+                            `(org-agenda-structure ((t (:inherit default ,@ha/variable-font-tuple :height 1.5 :underline nil))))
                             `(org-verbatim ((t (:inherit 'fixed-pitched ,@ha/fixed-font-tuple :foreground "#aef"))))
                             `(org-table ((t (:inherit 'fixed-pitched ,@ha/fixed-font-tuple))))
                             `(org-block ((t (:inherit 'fixed-pitched ,@ha/fixed-font-tuple))))

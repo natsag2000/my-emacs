@@ -1105,11 +1105,286 @@
 ;;; PROGRAMMING LANGUAGES
 ;;; -------------------------------------------------------------------------
 
+;;; General Language Support
+;;
+
+;;; ElDoc
+;;
+(use-package eldoc
+  :diminish eldoc-mode)
+
+;;; Tag support
+;;
+
+;; All programming languages require some sort of tagging. but after
+;;    thirty years, we are still using good ol’ ctags...well,
+;;    [[http://ctags.sourceforge.net][Exuberant Ctags]].   Install with Homebrew:
+
+;;    #+BEGIN_SRC sh :tangle no
+;;      brew install --HEAD ctags
+;;    #+END_SRC
+
+;;    On Ubuntu Linux, do:
+
+;;    #+BEGIN_SRC sh :tangle no
+;;      sudo apt-get install -y exuberant-ctags
+;;    #+END_SRC
+
+;;    Note: for every project, run the following command:
+
+;;    #+BEGIN_SRC sh :tangle no
+;;      ctags -e -R .
+;;    #+END_SRC
+
+;;    I want to be able to add headers from my =org-mode= files as
+;;    a /language option/:
+
+;;    #+BEGIN_SRC sh :tangle ~/.ctags :comments no
+;;     --langdef=org
+;;     --langmap=org:.org
+;;     --regex-org=/^\*+[ \t]+([a-zA-Z0-9_ ]+)/\1/d,definition/
+;;    #+END_SRC
+
+;;    We access stuff by loading the =etags= package:
+
+(require 'etags)
+
+;; Now, use the following keys:
+
+;;    - M-. :: To find the tag at point to jump to the function’s
+;;             definition when the point is over a function call. It is a
+;;             dwim-type function.
+;;    - M-, :: jump back to where you were.
+;;    - M-? :: find a tag, that is, use the Tags file to look up a
+;;             definition. If there are multiple tags in the project with
+;;             the same name, use `C-u M-.’ to go to the next match.
+;;    - =M-x tags-search= :: regexp-search through the source files
+;;         indexed by a tags file (a bit like =grep=)
+;;    - =M-x tags-query-replace= :: query-replace through the source files
+;;         indexed by a tags file
+;;    - =M-x tags-apropos= :: list all tags in a tags file that match a
+;;         regexp
+;;    - =M-x list-tags= :: list all tags defined in a source file
+
+;;    With the fancy new [[https://marmalade-repo.org/packages/ctags-update][ctags-update]] package, we can update the tags file
+;;    whenever we save a file:
+(use-package ctags-update
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook  'turn-on-ctags-auto-update-mode)
+  :diminish ctags-auto-update-mode)
+
+;;And if I'm lazy and willing to use the mouse:
+(use-package imenu+
+  :ensure t
+  :init (add-hook 'prog-mode-hook 'imenup-add-defs-to-menubar)
+  (add-hook 'org-mode-hook  'imenup-add-defs-to-menubar))
+
+;;If I don't know what I'm after, Helm is better:
+(use-package helm
+  :bind (("C-c M-i" . helm-imenu)))
+
+(use-package guide-key
+       :init (add-to-list 'guide-key/guide-key-sequence "C-x c"))
+
+;; Emacs 25 changed has now deprecated the famous [[info:emacs#Tags][Tags and Friends]],
+;;    like =find-tags= for =xref=. Some point, I will have to learn how
+;;    to configure it, but until then, I'll just rebind to my old mates:
+
+(global-set-key (kbd "M-.") 'find-tag)
+(global-set-key (kbd "C-M-.") 'find-tag-regexp)
+(global-set-key (kbd "M-,") 'pop-tag-mark)
+(global-set-key (kbd "M-i") 'imenu-anywhere)
+
+;;Note: This prompt needs to go away:
+(setq tags-add-tables nil)
+
+
+;;; Code Block Folding
+
+;; The [[info:emacs#Hideshow][Hide Show Minor]] mode allows us to /fold/ all functions
+;;     (hidden), showing only the header lines. We need to turn on the
+;;     mode, so wrappers are in order:
+(defun ha/hs-show-all ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-show-all))
+
+(defun ha/hs-hide-all ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-hide-all))
+
+(defun ha/hs-toggle-hiding ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-toggle-hiding))
+
+;; Seems that =C-c @= is too obnoxious to use, so I'll put my
+;;     favorite on the =C-c h= prefix:
+(use-package hs-minor-mode
+  :bind
+  ("C-c T h" . hs-minor-mode)
+  ("C-c h a" . ha/hs-hide-all)
+  ("C-c h s" . ha/hs-show-all)
+  ("C-c h h" . ha/hs-toggle-hiding))
+
+;;; Aggressive Auto Indention
+;;
+
+;; Automatically indent without use of the tab found in [[http://endlessparentheses.com/permanent-auto-indentation.html][this article]],
+;;     and seems to be quite helpful for many types of programming
+;;     languages.
+
+;;     To begin, we create a function that can indent a function by
+;;     calling =indent-region= on the beginning and ending points of a
+;;     function.
+(defun indent-defun ()
+  "Indent current defun.
+Do nothing if mark is active (to avoid deactivaing it), or if
+buffer is not modified (to avoid creating accidental
+modifications)."
+  (interactive)
+  (unless (or (region-active-p)
+              buffer-read-only
+              (null (buffer-modified-p)))
+    (let ((l (save-excursion (beginning-of-defun 1) (point)))
+          (r (save-excursion (end-of-defun 1) (point))))
+      (cl-letf (((symbol-function 'message) #'ignore))
+        (indent-region l r)))))
+
+;; Next, create a hook that will call the =indent-defun= with every
+;;     command call:
+(defun activate-aggressive-indent ()
+  "Locally add `ha/indent-defun' to `post-command-hook'."
+  (add-hook 'post-command-hook
+            'indent-defun nil 'local))
+
+
+;;; Red Warnings
+;;
+
+(add-hook 'prog-common-hook
+          (lambda ()
+            (font-lock-add-keywords nil
+                                    '(("\\<\\(FIX\\|FIXME\\|TODO\\|BUG\\|HACK\\):" 1 font-lock-warning-face t)))))
 
 
 
+;;; -------------------------------------------------------------------------
+;;; Shell Scripts
+;;; -------------------------------------------------------------------------
+
+;; Files in my =bin= directory (but /only/ if it doesn't have any
+;;    other extension), should start in =sh-mode=:
+(add-to-list 'auto-mode-alist '("/bin/" . sh-mode))
+
+;; Newline and indent in `sh-mode'.
+(add-hook 'sh-mode-hook #'(lambda ()
+                            (define-key sh-mode-map (kbd "RET") 'newline-and-indent)))
 
 
+;;; -------------------------------------------------------------------------
+;;; Emacs Lisp
+;;; -------------------------------------------------------------------------
+
+;; Sure, everything here is in Emacs Lisp, but this section helps me
+;;    write more of that... like making snazzy symbols and colorizing the
+;;    variables.
+
+;;    The [[https://github.com/ankurdave/color-identifiers-mode][color-identifiers]] project (unlike [[https://github.com/Fanael/rainbow-identifiers][others]]), downplay the
+;;    keywords, and increase the colorizing of the variables.
+
+(use-package color-identifiers-mode
+  :ensure t
+  :init
+  (add-hook 'emacs-lisp-mode-hook 'color-identifiers-mode)
+  :diminish color-identifiers-mode)
+
+;; The only real snazzy symbol that I like is replacing the =lambda=
+;;    with λ:
+
+(use-package lisp-mode
+  :init
+  (defconst lisp--prettify-symbols-alist
+    '(("lambda"  . ?λ)
+      ("."       . ?•)))
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'global-prettify-symbols-mode)
+  (add-hook 'emacs-lisp-mode-hook 'activate-aggressive-indent))
+
+;;; Paredit
+;;
+
+;; One of the cooler features of Emacs is the [[http://emacswiki.org/emacs/ParEdit][ParEdit mode]] which
+;;    keeps all parenthesis balanced in Lisp-oriented languages.
+;;    See this [[http://www.emacswiki.org/emacs/PareditCheatsheet][cheatsheet]].
+(use-package paredit
+  :ensure t
+  :diminish paredit-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
+
+;;; Colored Variables
+;;
+
+;;Color each variable, and downplay standard key words:
+(use-package color-identifiers-mode
+  :ensure t
+  :init
+  (add-hook 'emacs-lisp-mode-hook 'color-identifiers-mode))
+
+;;; Nicer Paren Matching
+;;
+
+;; The reverse mode of the default parenthesis matching doesn’t match
+;;     as well, so [[http://www.emacswiki.org/emacs/ShowParenMode][this code]] just makes it bold and more obvious:
+(use-package paren
+  :init
+  (set-face-background 'show-paren-match (face-background 'default))
+  (set-face-foreground 'show-paren-match "#afa")
+  (set-face-attribute  'show-paren-match nil :weight 'black)
+  (set-face-background 'show-paren-mismatch (face-background 'default))
+  (set-face-foreground 'show-paren-mismatch "#c66")
+  (set-face-attribute  'show-paren-mismatch nil :weight 'black))
+
+;; While we are at it, let's dim the parens:
+(use-package paren-face
+  :ensure t
+  :init
+  (global-paren-face-mode))
+
+;;; Insert Comment of Eval
+;;
+
+;; While writing and documenting Emacs Lisp code, it would be helpful
+;;     to insert the results of evaluation of an s-expression directly
+;;     into the code as a comment:
+(use-package lisp-mode
+  :config (defun eval-and-comment-output ()
+            "Add the output of the sexp as a comment after the sexp"
+            (interactive)
+            (save-excursion
+              (end-of-line)
+              (condition-case nil
+                  (princ (concat " ; -> " (pp-to-string (eval (preceding-sexp))))
+                         (current-buffer))
+                (error (message "Invalid expression")))))
+
+  :bind ("C-x e" . eval-and-comment-output))
+
+
+;;; -------------------------------------------------------------------------
+;;; JavaScript
+;;; -------------------------------------------------------------------------
+
+(require 'init-javascript-nagi)
+
+;;; -------------------------------------------------------------------------
+;;; Web
+;;; -------------------------------------------------------------------------
+
+(require 'init-nagi-web)
 
 
 ;;------------------------------------------------------- >>>>>>>
@@ -1314,18 +1589,6 @@
 ;; Pas-de-dialog-gtk
 (setq use-file-dialog nil)
 
-;;; Powerline
-;; testing
-;; (use-package powerline
-;;        :ensure t)
-;; (custom-set-faces
-;;      '(mode-line-buffer-id ((t (:foreground "#000000" :bold t))))
-;;      '(which-func ((t (:foreground "#77aaff"))))
-;;      '(mode-line ((t (:foreground "#000000" :background "#dddddd" :box nil))))
-;;      '(mode-line-inactive ((t (:foreground "#000000" :background "#bbbbbb" :box nil)))))
-
-
-
 ;;; Ediff
 ;;
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
@@ -1336,13 +1599,6 @@
 ;;
 (show-paren-mode 1)
 (setq show-paren-ring-bell-on-mismatch t)
-
-;; Start-emacs-server
-;;
-;; (add-hook 'after-init-hook #'(lambda ()
-;;                                (unless (daemonp)
-;;                                  (server-start)
-;;                                  (setq server-raise-frame t))))
 
 ;; Path-to-abbrev-file
 ;;(setq abbrev-file-name "/home/thierry/.emacs.d/.abbrev_defs")
@@ -1407,9 +1663,6 @@
 ;; Prompt shell read only
 (setq comint-prompt-read-only t)
 
-;; Newline and indent in `sh-mode'.
-(add-hook 'sh-mode-hook #'(lambda ()
-                            (define-key sh-mode-map (kbd "RET") 'newline-and-indent)))
 
 ;; winner-mode config
 (setq winner-boring-buffers '("*Completions*"
@@ -1425,12 +1678,12 @@
 
 (winner-mode 1)
 
-;; Display time in mode-line
+;; ;;Display time in mode-line
 ;; (setq display-time-string-forms
 ;;       '( ;; date
 ;;         (if (and (not display-time-format) display-time-day-and-date)
 ;;             (format-time-string "[%a %e %b " now)
-;;             "")
+;;           "")
 ;;         ;; time
 ;;         (concat
 ;;          (propertize
@@ -1448,10 +1701,10 @@
 ;;         ;; mail
 ;;         ""))
 
-;; Mode-line
-;(set-face-attribute 'mode-line-emphasis nil :foreground "red")
+;; ;;Mode-line
+;; (set-face-attribute 'mode-line-emphasis nil :foreground "red")
 
-;; World-time
+;; ;;World-time
 ;; (add-to-list 'display-time-world-list '("Greenwich" "Greenwich"))
 ;; (add-to-list 'display-time-world-list '("Australia/Sydney" "Sydney"))
 ;; (add-to-list 'display-time-world-list '("Australia/Melbourne" "Melbourne"))
@@ -1541,7 +1794,6 @@
 
 (use-package async-bytecomp
   :config (setq async-bytecomp-allowed-packages '(all)))
-
 
 
 ;; Zoom-window
@@ -1785,130 +2037,6 @@
 
 
 
-
-;;;; PROGRAMMING
-
-;;; Tag support
-
-;; All programming languages require some sort of tagging. but after
-;;    thirty years, we are still using good ol’ ctags...well,
-;;    [[http://ctags.sourceforge.net][Exuberant Ctags]].   Install with Homebrew:
-
-;;    #+BEGIN_SRC sh :tangle no
-;;      brew install --HEAD ctags
-;;    #+END_SRC
-
-;;    On Ubuntu Linux, do:
-
-;;    #+BEGIN_SRC sh :tangle no
-;;      sudo apt-get install -y exuberant-ctags
-;;    #+END_SRC
-
-;;    Note: for every project, run the following command:
-
-;;    #+BEGIN_SRC sh :tangle no
-;;      ctags -e -R .
-;;    #+END_SRC
-
-;;    I want to be able to add headers from my =org-mode= files as
-;;    a /language option/:
-
-;;    #+BEGIN_SRC sh :tangle ~/.ctags :comments no
-;;     --langdef=org
-;;     --langmap=org:.org
-;;     --regex-org=/^\*+[ \t]+([a-zA-Z0-9_ ]+)/\1/d,definition/
-;;    #+END_SRC
-
-;;    We access stuff by loading the =etags= package:
-
-(require 'etags)
-
-;; Now, use the following keys:
-
-;;    - M-. :: To find the tag at point to jump to the function’s
-;;             definition when the point is over a function call. It is a
-;;             dwim-type function.
-;;    - M-, :: jump back to where you were.
-;;    - M-? :: find a tag, that is, use the Tags file to look up a
-;;             definition. If there are multiple tags in the project with
-;;             the same name, use `C-u M-.’ to go to the next match.
-;;    - =M-x tags-search= :: regexp-search through the source files
-;;         indexed by a tags file (a bit like =grep=)
-;;    - =M-x tags-query-replace= :: query-replace through the source files
-;;         indexed by a tags file
-;;    - =M-x tags-apropos= :: list all tags in a tags file that match a
-;;         regexp
-;;    - =M-x list-tags= :: list all tags defined in a source file
-
-;;    With the fancy new [[https://marmalade-repo.org/packages/ctags-update][ctags-update]] package, we can update the tags file
-;;    whenever we save a file:
-(use-package ctags-update
-  :ensure t
-  :config
-  (add-hook 'prog-mode-hook  'turn-on-ctags-auto-update-mode)
-  :diminish ctags-auto-update-mode)
-
-;;And if I'm lazy and willing to use the mouse:
-(use-package imenu+
-  :ensure t
-  :init (add-hook 'prog-mode-hook 'imenup-add-defs-to-menubar)
-  (add-hook 'org-mode-hook  'imenup-add-defs-to-menubar))
-
-;;If I don't know what I'm after, Helm is better:
-(use-package helm
-  :bind (("C-c M-i" . helm-imenu)))
-
-(use-package guide-key
-       :init (add-to-list 'guide-key/guide-key-sequence "C-x c"))
-
-;; Emacs 25 changed has now deprecated the famous [[info:emacs#Tags][Tags and Friends]],
-;;    like =find-tags= for =xref=. Some point, I will have to learn how
-;;    to configure it, but until then, I'll just rebind to my old mates:
-
-(global-set-key (kbd "M-.") 'find-tag)
-(global-set-key (kbd "C-M-.") 'find-tag-regexp)
-(global-set-key (kbd "M-,") 'pop-tag-mark)
-(global-set-key (kbd "M-i") 'imenu-anywhere)
-
-;;Note: This prompt needs to go away:
-(setq tags-add-tables nil)
-
-;;; Code Block Folding
-
-;; The [[info:emacs#Hideshow][Hide Show Minor]] mode allows us to /fold/ all functions
-;;     (hidden), showing only the header lines. We need to turn on the
-;;     mode, so wrappers are in order:
-(defun ha/hs-show-all ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-show-all))
-
-(defun ha/hs-hide-all ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-hide-all))
-
-(defun ha/hs-toggle-hiding ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-toggle-hiding))
-
-;; Seems that =C-c @= is too obnoxious to use, so I'll put my
-;;     favorite on the =C-c h= prefix:
-(use-package hs-minor-mode
-  :bind
-  ("C-c T h" . hs-minor-mode)
-  ("C-c h a" . ha/hs-hide-all)
-  ("C-c h s" . ha/hs-show-all)
-  ("C-c h h" . ha/hs-toggle-hiding))
-
-;;; Web
-;;
-(require 'init-nagi-web)
-
-;;; js2
-;;
-(require 'init-javascript-nagi)
 
 ;;; using Dash
 (if (eq system-type 'darwin)
