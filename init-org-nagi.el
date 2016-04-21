@@ -16,7 +16,8 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; Code:
+;;; Initial Settings
+;;
 
 (use-package org
   :ensure t        ; But it comes with Emacs now!?
@@ -45,13 +46,27 @@
                                                     (org-return)
                                                   (org-return-indent)))))
 
-;;; Org extras usefull for exporting HTML
-;;
+;; *Speed Commands:* If point is at the beginning of a headline or
+;; code block in org-mode, single keys do fun things. See
+;; =org-speed-command-help= for details (or hit the ? key at a
+;;                                          headline).
+
+;; *Note*: For the most part, I like [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Indent-Convenience.html][electric-indent-mode]], however, it
+;; doesn't really play well with =org-mode=, so I just bind the Return
+;; key to the ~org-return-indent~ function and get the same effect (but
+;;                                                                  only if I am /not/ in a source code block...which actually insert
+;;                                                                  multiple new lines).  This /return and indent/ feature is fine, since
+;; when I save a file, I automatically strip off [[file:emacs.org::*Strip%20Whitespace%20on%20Save][trailing whitespace]].
+
+;; We will use some of the packages from [[http://orgmode.org/worg/org-contrib/][org extras]], especially
+;; [[http://orgmode.org/worg/org-contrib/org-drill.html][org-drill]] and [[http://orgmode.org/worg/org-contrib/org-mime.html][org-mime]] for HTML exports:
 (use-package org-plus-contrib
   :ensure t)
 
 ;;; Local key bindings
 ;;
+
+;; A couple of short-cut keys to make it easier to edit text.
 (defun org-text-bold () "Wraps the region with asterisks."
        (interactive)
        (surround-text "*"))
@@ -72,21 +87,119 @@
 
 ;;; Color and Display
 ;;
+
+;; Displaying the headers using various bullets are nice for my presentations.
 (use-package org-bullets
   :ensure t
   :init (add-hook 'org-mode-hook 'org-bullets-mode))
-;; asterisk is now displayed as a bullet
+
+;; Here is my approach for quickly making the initial asterisks for
+;; listing items and whatnot, appear as Unicode bullets (without
+;;                                                       actually affecting the text file or the behavior).
 (use-package org-mode
   :init
   (font-lock-add-keywords 'org-mode
                           '(("^ +\\([-*]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•")))))))
 
-;;; TODO: maybe insert org-journaling here
+;;; Journaling
+;;
+
+;; Didn't realize that [[http://www.emacswiki.org/emacs/OrgJournal][org-journal]] essentially does what I have been
+;; doing by hand. With a little customization, I don't have to change
+;; anything else:
+(use-package org-journal
+  :ensure t
+  :init
+  (setq org-journal-dir "~/org/journal/")
+  (setq org-journal-date-format "#+TITLE: Өдрийн тэмдэглэл - %Y-%b-%d (%A)")
+  (setq org-journal-time-format ""))
+
+;; The time format is the heading for each section. I set it to a
+;; blank since I really don't care about the time I add a section.
+
+;; Nice to /automatically/ insert a specific header if the journal entry
+;; file is empty using [[https://www.gnu.org/software/emacs/manual/html_node/autotype/Autoinserting.html][auto-insert]].
+
+;; A function to easily load today (and yesterday's) journal entry.
+
+(defun get-journal-file-today ()
+  "Return filename for today's journal entry."
+  (let ((daily-name (format-time-string "%Y%m%d")))
+    (expand-file-name (concat org-journal-dir daily-name))))
+
+(defun journal-file-today ()
+  "Create and load a journal file based on today's date."
+  (interactive)
+  (find-file (get-journal-file-today)))
+
+(global-set-key (kbd "C-c f j") 'journal-file-today)
+
+;; Since I sometimes (not often) forget to create a journal entry,
+;; and need to re-write history.
+(defun get-journal-file-yesterday ()
+  "Return filename for yesterday's journal entry."
+  (let ((daily-name (format-time-string "%Y%m%d" (time-subtract (current-time) (days-to-time 1)))))
+    (expand-file-name (concat org-journal-dir daily-name))))
+
+(defun journal-file-yesterday ()
+  "Creates and load a file based on yesterday's date."
+  (interactive)
+  (find-file (get-journal-file-yesterday)))
+
+(global-set-key (kbd "C-c f y") 'journal-file-yesterday)
+
+;; Seems like I need to have the inserted template match the file's
+;; name, not necessarily today's date:
+(defun journal-file-insert ()
+  "Insert's the journal heading based on the file's name."
+  (interactive)
+  (when (string-match "\\(20[0-9][0-9]\\)\\([0-9][0-9]\\)\\([0-9][0-9]\\)" (buffer-name))
+    (let ((year  (string-to-number (match-string 1 (buffer-name))))
+          (month (string-to-number (match-string 2 (buffer-name))))
+          (day   (string-to-number (match-string 3 (buffer-name))))
+          (datim nil))
+      (setq datim (encode-time 0 0 0 day month year))
+      (insert (format-time-string org-journal-date-format datim))
+      (insert "\n\n"))))  ; Start with a blank separating line
+
+(add-to-list 'auto-insert-alist '(".*/[0-9]*$" . journal-file-insert))
+
+;; I really would really like to read what I did last year "at this
+;;   time", and by that, I mean, 365 days ago, plus or minus a few to get
+;; to the same day of the week.
+
+(defun journal-last-year-file ()
+  "Returns the string corresponding to the journal entry that
+    happened 'last year' at this same time (meaning on the same day
+    of the week)."
+  (let* ((last-year-seconds (- (float-time) (* 365 24 60 60)))
+         (last-year (seconds-to-time last-year-seconds))
+         (last-year-dow (nth 6 (decode-time last-year)))
+         (this-year-dow (nth 6 (decode-time)))
+         (difference (if (> this-year-dow last-year-dow)
+                         (- this-year-dow last-year-dow)
+                       (- last-year-dow this-year-dow)))
+         (target-date-seconds (+ last-year-seconds (* difference 24 60 60)))
+         (target-date (seconds-to-time target-date-seconds)))
+    (format-time-string "%Y%m%d" target-date)))
+
+(defun journal-last-year ()
+  "Loads last year's journal entry, which is not necessary the
+    same day of the month, but will be the same day of the week."
+  (interactive)
+  (let ((journal-file (concat org-journal-dir (journal-last-year-file))))
+    (find-file journal-file)))
+
+(global-set-key (kbd "C-c f L") 'journal-last-year)
+
+;;; TODO: taking meeting notes
 ;;
 
 ;;; Sepcify the Org Directories
 ;;
+;; I keep all my =org-mode= files in a few directories, and I would
+;; like them automatically searched when I generate agendas.
 
 (setq org-directory "~/org")
 (setq org-agenda-files '("~/org/personal"
@@ -95,6 +208,7 @@
 
 ;;; Auto Note Capturing
 ;;
+;; TODO: learn and then configure it nicely for yourself
 ;; After you have selected the template, you type in your note and hit
 ;;   =C-c C-c= to store it in the file listed above.
 ;;
@@ -127,6 +241,11 @@
 ;;; Export Settings
 ;;
 
+;; Seems some change now requires a direct load of HTML:
+
+;; To make the =org-mode= export defaults closer to my liking
+;; (without having to put specific #+PROPERTY commands), I get rid of
+;; the postamble, and then configure the default fonts.
 (use-package ox-html
   :init
   (setq org-html-postamble nil)
@@ -174,9 +293,12 @@
 
 ;; TODO: import literate programming part from Abrams config here
 
+
+;;; finished here are other configs from thiel TODO: clean it up
+
 ;; auto-fill-mode
 ;; (set to 78 in files)
-;;(add-hook 'org-mode-hook 'auto-fill-mode) ;; set in Fill Mode section in emacs.el
+(add-hook 'org-mode-hook 'auto-fill-mode) ;; set in Fill Mode section in emacs.el
 
 ;; Use-enter-to-follow-links
 (setq org-return-follows-link t)
