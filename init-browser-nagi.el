@@ -69,7 +69,10 @@
 
 ;;;;;TODO: more filtering stuffs from abraham here!!
 
+;;; Easier Link Selection
+;;
 
+;; [[https://github.com/abo-abo/ace-link][Ace-Link]] already supports EWW.
 (use-package ace-link
   :ensure t
   :config

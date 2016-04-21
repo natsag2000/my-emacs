@@ -31,7 +31,7 @@
   (add-to-list 'auto-mode-alist '(".*/[0-9]*$" . org-mode))   ;; Journal entries
   (add-hook 'org-mode-hook 'yas-minor-mode-on)
   :bind (("C-c l" . org-store-link)
-         ("C-c a" . org-agenda)
+         ("C-c g" . org-agenda) ;; sorry alchemist mode has it
          ("C-c c" . org-capture)
          ("C-M-|" . indent-rigidly))
   :config

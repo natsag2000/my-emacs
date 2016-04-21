@@ -60,6 +60,8 @@
 (setq package-pinned-packages '((async . "melpa")
                                 (magit . "melpa-stable")
                                 (magit-popup . "melpa-stable")
+                                (alchemist . "melpa-stable")
+                                (elixir-mode . "melpa-stable")
                                 (org . "org")))
 (package-initialize)
 
@@ -365,14 +367,13 @@
 
 ;;; Selecting a Buffer
 ;;
-;; note: helm has alsow switching buffer plugin
+;; note: helm has also switching buffer plugin
 (global-set-key (kbd "<f8>") 'ido-switch-buffer)
 (global-set-key (kbd "S-<f8>") 'ibuffer)
 
 (use-package kpm-list
   :ensure t
-  :bind ("S-<f8>" . kpm-list)
-  ("C-x C-b" . kpm-list))
+  :bind ("S-<f8>" . kpm-list))
 
 ;;; Controlling Window Size
 ;;
@@ -423,7 +424,7 @@
   :init (winner-mode 1))
 
 ;; While =winner-mode= is easy to keep the current window configuration
-;;    /clean/, the [[https://github.com/wasamasa/eyebrowse][eyebrowse]] project seems to have a good approach to
+;;    /clean/, the [[https://github.com/wasamasa/eyebrowse][eyebrowse]] project seems to have a good approach to?
 ;;    managing multiple configurations.
 (use-package eyebrowse
   :ensure t
@@ -880,8 +881,9 @@
 (use-package company-quickhelp
   :ensure t
   :config
-  (company-quickhelp-mode 1))
-
+  (company-quickhelp-mode -1))
+(eval-after-load 'company
+  '(define-key company-active-map (kbd "M-h") #'company-quickhelp-manual-begin))
 
 ;;; Yasnippets
 ;;
@@ -1386,6 +1388,115 @@ modifications)."
 
 (require 'init-nagi-web)
 
+;;; -------------------------------------------------------------------------
+;;; Org-Mode
+;;; -------------------------------------------------------------------------
+;;
+
+;;(use-package org :ensure t :config (use-package org-config-nagi))
+(require 'init-org-nagi)
+
+
+;;; -------------------------------------------------------------------------
+;;; Elixir
+;;; -------------------------------------------------------------------------
+(use-package elixir-mode
+  :commands elixir-mode
+  :ensure t)
+
+(use-package alchemist
+  :commands elixir-mode
+  :ensure t
+  :init
+  (add-hook 'elixir-mode-hook 'alchemist-mode)
+  )
+
+;;(setq alchemist-key-command-prefix (kbd "C-c ,"))
+
+;;; -------------------------------------------------------------------------
+;;; Tools
+;;; -------------------------------------------------------------------------
+
+;;; Git
+;;
+
+;;I like [[https://github.com/syohex/emacs-git-gutter-fringe][git-gutter-fringe]]:
+(use-package git-gutter-fringe
+  :ensure t
+  :config (git-gutter-mode 1))
+
+;; I want to have special mode for Git's =configuration= file:
+(use-package gitconfig-mode
+  :ensure t)
+
+(use-package gitignore-mode
+  :ensure t)
+
+;; What about being able to see the [[https://github.com/voins/mo-git-blame][Git blame]] in a buffer?
+;; Run =mo-git-blame-current= to see the goodies.
+(use-package mo-git-blame
+  :ensure t)
+
+
+;;; Magit
+;;
+
+;; Git is [[http://emacswiki.org/emacs/Git][already part of Emacs]]. However, [[http://philjackson.github.com/magit/magit.html][Magit]] is sweet.
+;; Don't believe me? Check out [[https://www.youtube.com/watch?v=vQO7F2Q9DwA][this video]].
+(use-package magit
+  :init
+  (progn
+    (setq magit-status-buffer-name-format "*magit status: %a*")
+    (setq magit-restore-window-configuration t)
+    (setq git-commit-fill-column 120)
+    (setq git-commit-summary-max-length 80)
+    (setq auto-revert-verbose nil)
+    (setq magit-revision-show-gravatars nil)
+    (setq magit-uniquify-buffer-names nil))
+  :config
+  (global-set-key (kbd "C-x g") 'magit-status)
+  (bind-key "C" 'magit-commit-add-log magit-diff-mode-map)
+  (bind-key "C-]" 'magit-toggle-margin magit-log-mode-map)
+  :no-require t
+  :ensure t)
+;; I like having Magit to run in a /full screen/ mode, and add the
+;; above =defadvice= idea from [[https://github.com/magnars/.emacs.d/blob/master/setup-magit.el][Sven Magnars]].
+
+;;; PlantUML and Graphviz
+;;
+;; Install the [[http://www.graphviz.org/][Graphviz]] and [[http://plantuml.sourceforge.net/download.html][PlantUML]] projects using Homebrew:
+;; brew install graphviz
+;; brew link graphviz
+;; brew install plantuml
+;; Load the [[https://github.com/wildsoul/plantuml-mode][mode for PlantUML]] and reference its jar:
+
+(let ((plantuml-jar (car (file-expand-wildcards "~/opt/plantuml/plantuml*.jar"))))
+  (if plantuml-jar
+      (use-package plantuml-mode
+        :ensure t
+        :init
+        (setq plantuml-jar-path     plantuml-jar
+              org-plantuml-jar-path plantuml-jar))))
+
+
+;; And the [[http://ppareit.github.com/graphviz-dot-mode/][mode for Graphviz]]:
+(use-package graphviz-dot-mode
+  :ensure t)
+
+;;; -------------------------------------------------------------------------
+;;; APPLICATIONS
+;;; -------------------------------------------------------------------------
+
+;;; Web Browsing
+;;
+(require 'init-browser-nagi)
+
+
+;;; EShell
+;;
+(require 'init-eshell-nagi)
+
+
 
 ;;------------------------------------------------------- >>>>>>>
 
@@ -1448,8 +1559,7 @@ modifications)."
 (setq mark-ring-max 60)
 
 
-
-;;(setq font-lock-maximum-decoration t)
+(setq font-lock-maximum-decoration t)
 
 ;; column-number in mode-line.
 (column-number-mode 1)
@@ -1489,8 +1599,8 @@ modifications)."
 
 ;; (defvar tv-default-font (assoc-default 'font (frame-parameters)))
 ;; (setq-default frame-background-mode 'dark)
-;; (setq initial-frame-alist '((fullscreen . maximized)))
-;; (setq frame-auto-hide-function 'delete-frame)
+(setq initial-frame-alist '((fullscreen . maximized)))
+(setq frame-auto-hide-function 'delete-frame)
 
 
 ;; (if (or (daemonp)
@@ -1536,52 +1646,52 @@ modifications)."
 ;;; Special buffer display.
 ;;
 ;;
-;; (setq special-display-regexps `(("\\*Help"
-;;                                  (minibuffer . nil)
-;;                                  (width . 80)
-;;                                  (height . 24)
-;;                                  (left-fringe . 0)
-;;                                  (border-width . 0)
-;;                                  (menu-bar-lines . 0)
-;;                                  (tool-bar-lines . 0)
-;;                                  (unsplittable . t)
-;;                                  (top . 24)
-;;                                  (left . 450)
-;;                                  (background-color . "Lightsteelblue1")
-;;                                  (foreground-color . "black")
-;;                                  (alpha . nil)
-;;                                  (fullscreen . nil))
-;;                                 ("\\*Compile-Log"
-;;                                  (minibuffer . nil)
-;;                                  (width . 85)
-;;                                  (height . 24)
-;;                                  (left-fringe . 0)
-;;                                  (border-width . 0)
-;;                                  (menu-bar-lines . 0)
-;;                                  (tool-bar-lines . 0)
-;;                                  (unsplittable . t)
-;;                                  (top . 24)
-;;                                  (left . 450)
-;;                                  (background-color . "Brown4")
-;;                                  (foreground-color . "black")
-;;                                  (alpha . nil)
-;;                                  (fullscreen . nil))
-;;                                 ("\\*Dict"
-;;                                  (minibuffer . nil)
-;;                                  (width . 80)
-;;                                  (height . 24)
-;;                                  (left-fringe . 0)
-;;                                  (border-width . 0)
-;;                                  (menu-bar-lines . 0)
-;;                                  (tool-bar-lines . 0)
-;;                                  (unsplittable . t)
-;;                                  (top . 24)
-;;                                  (left . 450)
-;;                                  (background-color . "LightSteelBlue")
-;;                                  (foreground-color . "DarkGoldenrod")
-;;                                  (alpha . nil)
-;;                                  (fullscreen . nil))
-;;                                 ))
+(setq special-display-regexps `(("\\*Help"
+                                 (minibuffer . nil)
+                                 (width . 80)
+                                 (height . 24)
+                                 (left-fringe . 0)
+                                 (border-width . 0)
+                                 (menu-bar-lines . 0)
+                                 (tool-bar-lines . 0)
+                                 (unsplittable . t)
+                                 (top . 24)
+                                 (left . 450)
+                                 (background-color . "Lightsteelblue1")
+                                 (foreground-color . "black")
+                                 (alpha . nil)
+                                 (fullscreen . nil))
+                                ("\\*Compile-Log"
+                                 (minibuffer . nil)
+                                 (width . 85)
+                                 (height . 24)
+                                 (left-fringe . 0)
+                                 (border-width . 0)
+                                 (menu-bar-lines . 0)
+                                 (tool-bar-lines . 0)
+                                 (unsplittable . t)
+                                 (top . 24)
+                                 (left . 450)
+                                 (background-color . "Brown4")
+                                 (foreground-color . "black")
+                                 (alpha . nil)
+                                 (fullscreen . nil))
+                                ("\\*Dict"
+                                 (minibuffer . nil)
+                                 (width . 80)
+                                 (height . 24)
+                                 (left-fringe . 0)
+                                 (border-width . 0)
+                                 (menu-bar-lines . 0)
+                                 (tool-bar-lines . 0)
+                                 (unsplittable . t)
+                                 (top . 24)
+                                 (left . 450)
+                                 (background-color . "LightSteelBlue")
+                                 (foreground-color . "DarkGoldenrod")
+                                 (alpha . nil)
+                                 (fullscreen . nil))
+                                ))
 
 ;; Don't split this windows horizontally
 (setq split-width-threshold nil)
@@ -1848,23 +1958,19 @@ modifications)."
 ;;; emacs-wget site-lisp configuration
 ;;
 ;;
- ;; (autoload 'wget "wget" "wget interface for Emacs." t)
- ;; (autoload 'wget-web-page "wget" "wget interface to download whole web page." t)
+;; (autoload 'wget "wget" "wget interface for Emacs." t)
+;; (autoload 'wget-web-page "wget" "wget interface to download whole web page." t)
 
- ;; (use-package w3m-wget)
- ;; ;; Use wget in eshell.
- ;; (defun eshell/wget (url)
- ;;   (wget url))
+;; (use-package w3m-wget)
+;; ;; Use wget in eshell.
+;; (defun eshell/wget (url)
+;;   (wget url))
 
 
 ;;; Firefox protocol
 ;;
 (autoload 'firefox-protocol-installer-install "firefox-protocol" nil t)
 
-;;; Org
-;;
-;;(use-package org :ensure t :config (use-package org-config-nagi))
-(require 'init-org-nagi)
 
 ;; ace-jump-mode
 (use-package ace-jump-mode
@@ -1872,16 +1978,6 @@ modifications)."
   :init
   (define-key global-map (kbd "C-0") 'ace-jump-mode))
 
-
-;;; Emacs Browser setup
-;;
-(require 'init-browser-nagi)
-
-;; (use-package w3m
-;;   :ensure t
-;;   :init (require 'config-w3m)
-;;   :bind ("<f7> h" . w3m)
-;;   :defer t)
 
 (setq browse-url-browser-function 'helm-browse-url-firefox)
 ;;(setq browse-url-browser-function 'w3m-browse-url)
@@ -1900,111 +1996,6 @@ modifications)."
   :config (use-package emms-vlc-config)
   :commands (emms-stream-init))
 
-;;; Magit
-;;
-(use-package magit
-  :init
-  (progn
-    (setq magit-status-buffer-name-format "*magit status: %a*")
-    (setq magit-restore-window-configuration t)
-    (setq git-commit-fill-column 120)
-    (setq git-commit-summary-max-length 80)
-    (setq auto-revert-verbose nil)
-    (setq magit-revision-show-gravatars nil)
-    (setq magit-uniquify-buffer-names nil))
-  :config
-  (global-set-key (kbd "C-x g") 'magit-status)
-  (bind-key "C" 'magit-commit-add-log magit-diff-mode-map)
-  (bind-key "C-]" 'magit-toggle-margin magit-log-mode-map)
-  :no-require t
-  :ensure t)
-
-;;; Eshell-config
-;;
-(use-package eshell
-  :init
-  (progn
-    ;; Eshell-prompt
-    (setq eshell-prompt-function
-          #'(lambda nil
-              (concat
-               (getenv "USER")
-               "@"
-               (system-name)
-               ":"
-               (abbreviate-file-name (eshell/pwd))
-               (if (= (user-uid) 0) " # " " $ "))))
-
-    ;; Compatibility 24.2/24.3
-    (unless (fboundp 'eshell-pcomplete)
-      (defalias 'eshell-pcomplete 'pcomplete))
-    (unless (fboundp 'eshell-complete-lisp-symbol)
-      (defalias 'eshell-complete-lisp-symbol 'lisp-complete-symbol))
-
-    (add-hook 'eshell-mode-hook #'(lambda ()
-                                    (setq eshell-pwd-convert-function (lambda (f)
-                                                                        (if (file-equal-p (file-truename f) "/")
-                                                                            "/" f)))
-                                    ;; Helm completion with pcomplete
-                                    (setq eshell-cmpl-ignore-case t)
-                                    (eshell-cmpl-initialize)
-                                    (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
-                                    ;; Helm lisp completion
-                                    (define-key eshell-mode-map [remap eshell-complete-lisp-symbol] 'helm-lisp-completion-at-point)
-                                    ;; Helm completion on eshell history.
-                                    (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
-                                    ;; Eshell prompt
-                                    (set-face-attribute 'eshell-prompt nil :foreground "DeepSkyBlue")
-                                    ;; Allow yanking right now instead of returning "Mark set"
-                                    (push-mark)))
-
-    ;; Eshell history size
-    (setq eshell-history-size 1000) ; Same as env var HISTSIZE.
-
-    ;; Eshell-banner
-    (setq eshell-banner-message (format "%s %s\nwith Emacs %s on %s"
-                                        (propertize
-                                         "Eshell session started on"
-                                         'face '((:foreground "Goldenrod")))
-                                        (propertize
-                                         (format-time-string "%c")
-                                         'face '((:foreground "magenta")))
-                                        (propertize emacs-version
-                                                    'face '((:foreground "magenta")))
-                                        (propertize
-                                         (with-temp-buffer
-                                           (call-process "uname" nil t nil "-r")
-                                           (buffer-string))
-                                         'face '((:foreground "magenta")))))
-
-    ;; Eshell-et-ansi-color
-    (ignore-errors
-      (dolist (i (list 'eshell-handle-ansi-color
-                       'eshell-handle-control-codes
-                       'eshell-watch-for-password-prompt))
-        (add-to-list 'eshell-output-filter-functions i)))
-
-    ;; Eshell-save-history-on-exit
-    ;; Possible values: t (always save), 'never, 'ask (default)
-    (setq eshell-save-history-on-exit t)
-
-    ;; Eshell-directory
-    (setq eshell-directory-name "~/.emacs.d/eshell/")
-
-    ;; Eshell-visual
-    (setq eshell-term-name "eterm-color")
-    (with-eval-after-load "em-term"
-      (dolist (i '("tmux" "htop" "alsamixer" "git-log"))
-        (add-to-list 'eshell-visual-commands i))))
-  :config
-  ;; Finally load eshell on startup.
-  (add-hook 'emacs-startup-hook #'(lambda ()
-                                    (let ((default-directory (getenv "HOME")))
-                                      (command-execute 'eshell)
-                                      (bury-buffer)))))
-(setq eshell-scroll-to-bottom-on-input t)
-;; *Note:* hitting return on any other line will copy that line to the
-;;     prompt and immediately execute it.
 
 
 
@@ -2012,10 +2003,6 @@ modifications)."
 ;;; Bookmark+
 ;;
 (use-package bookmark+ :ensure t)
-
-
-
-
 
 
 ;; Bindings
@@ -2029,20 +2016,10 @@ modifications)."
 (global-set-key (kbd "C-c W")                      'whitespace-mode)
 (global-set-key (kbd "C-M-j")                      #'(lambda () (interactive) (kill-sexp -1)))
 
-
-
-
-
-
-
-
-
-
 ;;; using Dash
 (if (eq system-type 'darwin)
     (require 'init-mac-dash)
   (require 'init-linux-dash))
-
 
 
 (if (window-system)
