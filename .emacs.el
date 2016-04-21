@@ -1449,7 +1449,7 @@ modifications)."
 
 
 
-(setq font-lock-maximum-decoration t)
+;;(setq font-lock-maximum-decoration t)
 
 ;; column-number in mode-line.
 (column-number-mode 1)

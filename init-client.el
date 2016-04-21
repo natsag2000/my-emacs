@@ -44,7 +44,7 @@
 ;;   While thicker, [[https://github.com/tonsky/FiraCode][Fira]] does symbol ligatures. However, [[https://github.com/i-tu/Hasklig][Hasklig]] is a
 ;;   nice font that is thinner and easier to read, with /some/ symbolic
 ;;   ligatures that doesn't interfere with my org-mode header bullets.
-;; NOTE: evaluate and check the fonts! if nil, install them
+;; NOTE: evaluate and check the fonts! if nil, install one of them
 (defvar ha/fixed-font-family
   (cond ((x-list-fonts "Hasklig")         "Hasklig")
         ((x-list-fonts "Source Code Pro") "Source Code Pro")
@@ -72,11 +72,11 @@
   "My variable width font available to org-mode files and whatnot.")
 
 
-;;; Color Theme
+;;Color Theme
 ;;
 
- ;; Use the color theme project by following [[http://www.nongnu.org/color-theme/][these instructions]].
- ;;  We now can do =M-x color-theme-<TAB> RET=
+;; Use the color theme project by following [[http://www.nongnu.org/color-theme/][these instructions]].
+;;  We now can do =M-x color-theme-<TAB> RET=
 (use-package color-theme
   :ensure t
   :init (require 'color-theme)
