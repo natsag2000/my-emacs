@@ -19,7 +19,15 @@
       (defalias 'eshell-pcomplete 'pcomplete))
     (unless (fboundp 'eshell-complete-lisp-symbol)
       (defalias 'eshell-complete-lisp-symbol 'lisp-complete-symbol))
-
+    ;; some aliases
+    (defalias 'e 'find-file)
+    (defalias 'ff 'find-file)
+    (defalias 'emacs 'find-file)
+    ;; Replacing the window with the new buffer may not be what I want.
+    (defalias 'ee 'find-file-other-window)
+    ;;  Pull up dired, but without parameters, just use the current directory.
+    (defun eshell/d (&rest args)
+      (dired (pop args) "."))
     (add-hook 'eshell-mode-hook #'(lambda ()
                                     (setq eshell-pwd-convert-function (lambda (f)
                                                                         (if (file-equal-p (file-truename f) "/")
@@ -34,8 +42,13 @@
                                     (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
                                     ;; Eshell prompt
                                     (set-face-attribute 'eshell-prompt nil :foreground "DeepSkyBlue")
+                                    (eshell/alias "ll" "ls -Alh $*")
                                     ;; Allow yanking right now instead of returning "Mark set"
                                     (push-mark)))
+    ;; I can never seem to remember that =find= and =chmod= behave
+    ;; differently from Emacs than their Unix counterparts, so at this
+    ;; time, I will prefer the native implementations.
+    (setq eshell-prefer-lisp-functions nil)
 
     ;; Eshell history size
     (setq eshell-history-size 1000) ; Same as env var HISTSIZE.
