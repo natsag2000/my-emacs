@@ -20,7 +20,7 @@
 ;;
 
 (use-package org
-  :ensure t        ; But it comes with Emacs now!?
+  :ensure t
   :init
   (setq org-use-speed-commands t
         org-hide-emphasis-markers t
@@ -60,8 +60,7 @@
 
 ;; We will use some of the packages from [[http://orgmode.org/worg/org-contrib/][org extras]], especially
 ;; [[http://orgmode.org/worg/org-contrib/org-drill.html][org-drill]] and [[http://orgmode.org/worg/org-contrib/org-mime.html][org-mime]] for HTML exports:
-(use-package org-plus-contrib
-  :ensure t)
+(use-package org-plus-contrib :ensure t)
 
 ;;; Local key bindings
 ;;
@@ -215,8 +214,8 @@
 ;; Just remember, at some point to hit =C-c C-w= to /refile/ that note
 ;; in the appropriate place.
 
-(defvar org-default-notes-file "~/org/personal/notes.org")
-(defvar org-default-tasks-file "~/org/personal/tasks.org")
+(defvar my-default-notes-file "~/org/personal/notes.org")
+(defvar my-default-tasks-file "~/org/personal/tasks.org")
 
 (setq org-tag-alist '(("@entrainement")
                       ("climbing")
@@ -229,14 +228,14 @@
                       ("@travel")))
 
 (setq org-capture-templates
-      '(("t" "Todo" entry         (file+headline  org-default-tasks-file "Tasks")        "** TODO %?\n  %i\n  %a"  :prepend t)
-        ("n" "Notes" entry        (file+headline  org-default-notes-file "General")      "* %T %?\n\n  %i\n"       :prepend t)
-        ("E" "Entrainement" entry (file+headline  org-default-notes-file "Entrainement") "* %T %?\n\n  %i\n"       :prepend t)
-        ("H" "Helm" entry         (file+headline  org-default-notes-file "Helm")         "* %^{Title}\n  %i\n  %a" :prepend t)
-        ("l" "Lisp" entry         (file+headline  org-default-notes-file "Elisp")        "* %^{Title}\n  %i\n  %a" :prepend t)
-        ("p" "Python" entry       (file+headline  org-default-notes-file "Python")       "* %^{Title}\n  %i\n  %a" :prepend t)
-        ("b" "Bash" entry         (file+headline  org-default-notes-file "Bash")         "* %^{Title}\n  %i\n  %a" :prepend t)
-        ("L" "Linux" entry        (file+headline  org-default-notes-file "Linux")        "* %^{Title}\n  %i\n  %a" :prepend t)))
+      '(("t" "Todo" entry         (file+headline  my-default-tasks-file "Tasks")        "** TODO %?\n  %i\n  %a"  :prepend t)
+        ("n" "Notes" entry        (file+headline  my-default-notes-file "General")      "* %T %?\n\n  %i\n"       :prepend t)
+        ("E" "Entrainement" entry (file+headline  my-default-notes-file "Entrainement") "* %T %?\n\n  %i\n"       :prepend t)
+        ("H" "Helm" entry         (file+headline  my-default-notes-file "Helm")         "* %^{Title}\n  %i\n  %a" :prepend t)
+        ("l" "Lisp" entry         (file+headline  my-default-notes-file "Elisp")        "* %^{Title}\n  %i\n  %a" :prepend t)
+        ("p" "Python" entry       (file+headline  my-default-notes-file "Python")       "* %^{Title}\n  %i\n  %a" :prepend t)
+        ("b" "Bash" entry         (file+headline  my-default-notes-file "Bash")         "* %^{Title}\n  %i\n  %a" :prepend t)
+        ("L" "Linux" entry        (file+headline  my-default-notes-file "Linux")        "* %^{Title}\n  %i\n  %a" :prepend t)))
 
 ;;; Export Settings
 ;;
@@ -323,7 +322,7 @@
 
 
 ;; org-annotation-helper
-(use-package org-annotation-helper)
+;;(use-package org-annotation-helper)
 
 ;; Diary-integration-in-org
 (setq org-agenda-include-diary t) ; show also content of regular diary file.
