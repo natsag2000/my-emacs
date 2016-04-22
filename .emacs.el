@@ -1588,6 +1588,15 @@ modifications)."
 ;; under ~/.emacs.d/themes, git https://github.com/jd/naquadah-theme.git
 ;;(add-hook 'emacs-startup-hook #'(lambda () (load-theme 'naquadah)))
 
+;;; Starting daemon
+;;
+(if (window-system)
+    (require 'init-client)
+  (require 'init-server)
+
+  (server-start))
+
+
 
 ;;; Frame and window config.
 ;;
@@ -1597,35 +1606,35 @@ modifications)."
 ;; Choose a color:  [EVAL]: (progn (when (require 'helm-color) (helm 'helm-source-colors)))
 ;; To reload .Xresources [EVAL]: (shell-command xrdb "~/.Xresources")
 
-;; (defvar tv-default-font (assoc-default 'font (frame-parameters)))
+(defvar tv-default-font (assoc-default 'font (frame-parameters)))
 ;; (setq-default frame-background-mode 'dark)
 (setq initial-frame-alist '((fullscreen . maximized)))
 (setq frame-auto-hide-function 'delete-frame)
 
 
-;; (if (or (daemonp)
-;;         (not (window-system))
-;;         (< emacs-major-version 24))
-;;     (setq default-frame-alist `((vertical-scroll-bars . nil)
-;;                                 (tool-bar-lines . 0)
-;;                                 (menu-bar-lines . 0)
-;;                                 (title . ,(format "Emacs-%s" emacs-version))
-;;                                 (font . "-unknown-DejaVu Sans Mono-bold-normal-normal-*-14-*-*-*-m-0-iso10646-1")
-;;                                 (cursor-color . "red")))
+(if (or (daemonp)
+        (not (window-system))
+        (< emacs-major-version 24))
+    (setq default-frame-alist `((vertical-scroll-bars . nil)
+                                (tool-bar-lines . 0)
+                                (menu-bar-lines . 0)
+                                (title . ,(format "Emacs-%s" emacs-version))
+                                (font . "-unknown-DejaVu Sans Mono-bold-normal-normal-*-14-*-*-*-m-0-iso10646-1")
+                                (cursor-color . "red")))
 
-;;     (setq default-frame-alist `((foreground-color . "Wheat")
-;;                                 (background-color . "black")
-;;                                 (alpha . 90)
-;;                                 ;; New frames go in right corner.
-;;                                 (left . ,(- (* (window-width) 8) 160)) ; Chars are 8 bits long.
-;;                                 (vertical-scroll-bars . nil)
-;;                                 (title . ,(format "Emacs-%s" emacs-version))
-;;                                 (tool-bar-lines . 0)
-;;                                 (menu-bar-lines . 0)
-;;                                 (font . ,tv-default-font)
-;;                                 (cursor-color . "red")
-;;                                 (fullscreen . nil)
-;;                                 )))
+  (setq default-frame-alist `((foreground-color . "Wheat")
+                              (background-color . "black")
+                              (alpha . 90)
+                              ;; New frames go in right corner.
+                              (left . ,(- (* (window-width) 8) 160)) ; Chars are 8 bits long.
+                              (vertical-scroll-bars . nil)
+                              (title . ,(format "Emacs-%s" emacs-version))
+                              (tool-bar-lines . 0)
+                              (menu-bar-lines . 0)
+                              (font . ,tv-default-font)
+                              (cursor-color . "red")
+                              (fullscreen . nil)
+                              )))
 
 ;; Speedbar
 ;; (add-hook 'speedbar-load-hook
@@ -2020,10 +2029,3 @@ modifications)."
 (if (eq system-type 'darwin)
     (require 'init-mac-dash)
   (require 'init-linux-dash))
-
-
-(if (window-system)
-    (require 'init-client)
-  (require 'init-server)
-
-  (server-start))

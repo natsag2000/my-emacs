@@ -32,6 +32,9 @@
   :init
   (add-hook 'js2-mode-hook 'color-identifiers-mode))
 
+(use-package json-mode :ensure t)
+(use-package exec-path-from-shell :ensure t)
+
 ;;; Flycheck and JSHint
 ;;
 
