@@ -86,7 +86,7 @@
     ;; Eshell-visual
     (setq eshell-term-name "eterm-color")
     (with-eval-after-load "em-term"
-      (dolist (i '("tmux" "htop" "alsamixer" "git-log"))
+      (dolist (i '("tmux" "htop" "alsamixer" "git-log" "npm"))
         (add-to-list 'eshell-visual-commands i))))
   :config
   ;; Finally load eshell on startup.

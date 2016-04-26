@@ -1085,7 +1085,12 @@
   :init
   (add-hook 'after-init-hook 'global-flycheck-mode)
   :config
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint)))
+  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(json-jsonlist)))
+  ;; use eslint with web-mode for jsx files
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (setq-default flycheck-temp-prefix ".flycheck"))
 
 
 ;;; Hungry Delete

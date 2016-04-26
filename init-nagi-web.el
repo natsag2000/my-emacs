@@ -8,6 +8,7 @@
   :init
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
   :config
   (progn
     ;; Set tab to 4 to play nice with plebeian editors
