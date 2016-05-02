@@ -62,6 +62,7 @@
                                 (magit-popup . "melpa-stable")
                                 (alchemist . "melpa-stable")
                                 (elixir-mode . "melpa-stable")
+                                (js2-mode . "gnu")
                                 (org . "org")))
 (package-initialize)
 
