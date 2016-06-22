@@ -41,7 +41,7 @@
     (widen)))
 
 ;; And bind it to the HTML hook:
-(define-key html-mode-map (kbd "C-c C-w") 'surround-html)
+;; (define-key html-mode-map (kbd "C-c C-w") 'surround-html)
 
 ;;; Emmet Mode
 ;;

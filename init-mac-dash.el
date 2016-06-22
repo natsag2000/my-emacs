@@ -9,4 +9,4 @@
        (add-to-list 'dash-at-point-mode-alist '(sh-mode . "bash"))
        (add-to-list 'dash-at-point-mode-alist '(emacs-lisp-mode . "elisp")))
 
-(provide 'init-mac-dash.el)
+(provide 'init-mac-dash)
