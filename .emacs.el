@@ -558,6 +558,7 @@
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
 
+(add-to-list 'exec-path "/usr/local/bin")
 ;;; W3m
 ;;
 (use-package w3m
