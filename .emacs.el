@@ -915,32 +915,34 @@
 ;;    The [[http://aspell.net][ASpell]] project is better supported than ISpell.
 
 ;;Start for all text modes (but not for log files):
-(use-package flyspell
-  :ensure t
-  :diminish flyspell-mode
-  :init
-  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+;; NAGI commented out
+;; (use-package flyspell
+;;   :ensure t
+;;   :diminish flyspell-mode
+;;   :init
+;;   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 
-  (dolist (hook '(text-mode-hook org-mode-hook))
-    (add-hook hook (lambda () (flyspell-mode 1))))
+;;   (dolist (hook '(text-mode-hook org-mode-hook))
+;;     (add-hook hook (lambda () (flyspell-mode 1))))
 
-  (dolist (hook '(change-log-mode-hook log-edit-mode-hook org-agenda-mode-hook))
-    (add-hook hook (lambda () (flyspell-mode -1))))
+;;   (dolist (hook '(change-log-mode-hook log-edit-mode-hook org-agenda-mode-hook))
+;;     (add-hook hook (lambda () (flyspell-mode -1))))
 
-  :config
-  (setq ispell-program-name "/usr/bin/aspell"
-        ispell-dictionary "american" ; better for aspell
-        ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
-        ispell-list-command "--list")
+;;   :config
+;;   (setq ispell-program-name "/usr/bin/aspell"
+;;         ispell-dictionary "american" ; better for aspell
+;;         ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
+;;         ispell-list-command "--list")
 
-  (add-to-list 'ispell-local-dictionary-alist '(nil
-                                                "[[:alpha:]]"
-                                                "[^[:alpha:]]"
-                                                "['‘’]"
-                                                t
-                                                ("-d" "en_US")
-                                                nil
-                                                utf-8)))
+;;   (add-to-list 'ispell-local-dictionary-alist '(nil
+;;                                                 "[[:alpha:]]"
+;;                                                 "[^[:alpha:]]"
+;;                                                 "['‘’]"
+;;                                                 t
+;;                                                 ("-d" "en_US")
+;;                                                 nil
+;;                                                 utf-8)))
+;; NAGI commented out end
 
 ;; ASpell automatically configures a personal dictionary
 ;;    at =~/.aspell.en.pws=, so no need to configure that.
@@ -1087,10 +1089,6 @@
   (add-hook 'after-init-hook 'global-flycheck-mode)
   :config
   (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
-  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint)))
-  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(json-jsonlist)))
-  ;; use eslint with web-mode for jsx files
-  (flycheck-add-mode 'javascript-eslint 'web-mode)
   (setq-default flycheck-temp-prefix ".flycheck"))
 
 
@@ -1386,13 +1384,21 @@ modifications)."
 ;;; JavaScript
 ;;; -------------------------------------------------------------------------
 
-(require 'init-javascript-nagi)
+;;;(require 'init-javascript-nagi)
+
+
 
 ;;; -------------------------------------------------------------------------
 ;;; Web
 ;;; -------------------------------------------------------------------------
 
 (require 'init-nagi-web)
+
+;;; ---------
+;; Javascript React
+;;; ----------
+
+(require 'init-react)
 
 ;;; -------------------------------------------------------------------------
 ;;; Org-Mode
@@ -1512,6 +1518,7 @@ modifications)."
 ;;------------------------------------------------------- >>>>>>>
 
 ;; setting PATH for eshell
+;; also for eslint
 (setenv "PATH" (concat
                 "/home/nagi/opt/browser/firefox" ":"
                 (getenv "PATH")))

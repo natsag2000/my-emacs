@@ -32,7 +32,7 @@
   :init
   (add-hook 'js2-mode-hook 'color-identifiers-mode))
 
-(use-package json-mode :ensure t)
+;;(use-package json-mode :ensure t)
 (use-package exec-path-from-shell
   :ensure t
   :config (exec-path-from-shell-initialize))
@@ -40,12 +40,32 @@
 ;;; Flycheck and JSHint
 ;;
 
+(require 'flycheck)
+
+;; turn on flychecking globally
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+;; customize flycheck temp file prefix
+(setq-default flycheck-temp-prefix ".flycheck")
+
+;; disable json-jsonlist checking for json files
+(setq-default flycheck-disabled-checkers
+              (append flycheck-disabled-checkers
+                      '(json-jsonlist)))
+
+
 ;; While editing JavaScript is baked into Emacs, it is quite important
 ;; to have [[http://flycheck.readthedocs.org/][flycheck]] validate the source based on [[http://www.jshint.com/][jshint]], and [[https://github.com/eslint/eslint][eslint]].
 ;; Let’s prefer =eslint=:
 
+;; disable jshint since we prefer eslint checking
+(setq-default flycheck-disabled-checkers
+              (append flycheck-disabled-checkers
+                      '(javascript-jshint)))
+
 (add-hook 'js2-mode-hook
-          (lambda () (flycheck-select-checker "javascript-eslint")))
+          (lambda () (flycheck-select-checker 'javascript-eslint)))
+
 
 ;;; Refactoring JavaScript
 ;;
@@ -92,9 +112,9 @@
 ;; * C-M-x   :: `skewer-eval-defun'
 ;; * C-c C-k :: `skewer-load-buffer'
 
-(use-package skewer-mode
-  :ensure t
-  :init (add-hook 'js2-mode-hook 'skewer-mode))
+;; (use-package skewer-mode
+;;   :ensure t
+;;   :init (add-hook 'js2-mode-hook 'skewer-mode))
 
 ;;; Coffee
 ;;

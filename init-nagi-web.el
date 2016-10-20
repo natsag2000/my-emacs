@@ -8,15 +8,23 @@
   :init
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode))
   :config
   (progn
-    ;; Set tab to 4 to play nice with plebeian editors
+    ;; Set tab to 2 to play nice with plebeian editors
     (setq web-mode-markup-indent-offset 2)
-    (setq web-mode-css-indent-offset 4)
-    (setq web-mode-code-indent-offset 4)
+    (setq web-mode-css-indent-offset 2)
+    (setq web-mode-code-indent-offset 2)
+    (setq web-mode-attr-indent-offset 2)
+    (setq js-indent-level 2)
     (setq web-mode-enable-current-element-highlight t)
-    (setq web-mode-enable-current-column-highlight t)))
+    (setq web-mode-enable-current-column-highlight t)
+    (setq web-mode-content-types-alist
+          '(("jsx" . "\\.js[x]?\\'")))
+    ))
+
+(global-flycheck-mode)
+(flycheck-add-mode 'javascript-eslint 'web-mode)
 
 (use-package mustache-mode
   :ensure t)
