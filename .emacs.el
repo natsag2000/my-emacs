@@ -91,7 +91,7 @@
 ;;; VARIABLES
 ;;; ---------
 (setq user-full-name "Natsagdorj Shagdar (nagi)")
-(if (equal "nagi-ESPRIMO-P520" system-name)
+(if (equal "nagi-ThinkPad-T470s-W10DG" system-name)
     (setq user-mail-address "n.shagdar@dvz-mv.de")
   (setq user-mail-address "natsag2000@gmail.com"))
 
@@ -1393,12 +1393,6 @@ modifications)."
 ;;; -------------------------------------------------------------------------
 
 (require 'init-nagi-web)
-
-;;; ---------
-;; Javascript React
-;;; ----------
-
-(require 'init-react)
 
 ;;; -------------------------------------------------------------------------
 ;;; Org-Mode
