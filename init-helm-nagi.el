@@ -1,4 +1,4 @@
-;;; init-helm-nagi.el --- My startup file for helm. -*- lexical-binding: t -*- 
+;;; init-helm-nagi.el --- My startup file for helm. -*- lexical-binding: t -*-
 ;;; Code:
 
 
@@ -43,10 +43,10 @@
 (global-set-key (kbd "<f1>")                         'helm-resume)
 (global-set-key (kbd "C-h C-f")                      'helm-apropos)
 (global-set-key (kbd "C-h a")                        'helm-apropos)
-(global-set-key (kbd "<f5> s")                       'helm-find)
+;;(global-set-key (kbd "<f5> s")                       'helm-find)
 (global-set-key (kbd "<f2>")                         'helm-execute-kmacro)
 (global-set-key (kbd "C-c i")                        'helm-imenu-in-all-buffers)
-(global-set-key (kbd "<f11> o")                      'helm-org-agenda-files-headings)
+;;(global-set-key (kbd "<f11> o")                      'helm-org-agenda-files-headings)
 (global-set-key (kbd "C-s")                          'helm-occur)
 (define-key global-map [remap jump-to-register]      'helm-register)
 (define-key global-map [remap list-buffers]          'helm-mini)
@@ -75,9 +75,9 @@
 
 ;;; Describe key-bindings
 ;;
-;;
-;;(helm-descbinds-install)            ; C-h b, C-x C-h
+(use-package helm-descbinds
+  :ensure t
+  :init
+  (helm-descbinds-install))            ; C-h b, C-x C-h
 
 (provide 'init-helm-nagi)
-
-
