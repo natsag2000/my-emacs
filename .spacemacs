@@ -317,6 +317,11 @@ you should place your code here."
   (global-set-key (kbd "C-x C-m") 'helm-M-x)
   (global-set-key (kbd "C-x C-j") 'dired-jump)
   (require 'org-tempo)
+  ;;; loading mongolian keyboard
+  (register-input-method
+   "mongolian-cyrillic" "Mongolian" 'quail-use-package
+   "MN" "Mongolian standart computer layout"
+   "quail/cyrillic")
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
