@@ -334,6 +334,11 @@ you should place your code here."
   ;; set the default Plantuml execution mode to jar
   (setq plantuml-default-exec-mode 'jar)
   (setq org-plantuml-jar-path (expand-file-name "/usr/share/plantuml/plantuml.jar"))
+
+  ;; python config
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
