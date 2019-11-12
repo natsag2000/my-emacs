@@ -70,7 +70,7 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(exec-path-from-shell)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -371,6 +371,10 @@ you should place your code here."
    web-mode-css-indent-offset 2
    web-mode-code-indent-offset 2
    web-mode-attr-indent-offset 2)
+
+  ;; Set exec-path from zsh shell for MACOS
+  (when (memq window-system '(mac ns))
+    (exec-path-from-shell-initialize))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
