@@ -60,11 +60,12 @@ values."
      ;; spell-checking
      syntax-checking
      plantuml
-     ;; version-control
-     java
      treemacs
+     ;; DAP Debug Adapter Protocol used with lsp
+     dap
      (vue :variables vue-backend 'lsp)
      (node :variables node-add-modules-path)
+     (java :variables java-backend 'lsp)
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -330,7 +331,13 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
-  (my-setup-indent 2)
+  (setq lsp-java-vmargs
+        `("-noverify"
+          "-Xmx1G"
+          "-XX:+UseG1GC"
+          "-XX:+UseStringDeduplication"
+          ,(concat "-javaagent:" (expand-file-name "~") "/lib-jars/lombok/lombok.jar")
+          ,(concat "-Xbootclasspath/a:" (expand-file-name "~") "/lib-jars/lombok/lombok.jar")))
   )
 
 (defun dotspacemacs/user-config ()
