@@ -53,7 +53,6 @@ values."
      git
      yaml
      org
-     elixir
      ;; (shell :variables
      ;;        shell-default-height 03
      ;;        shell-https://github.com/michaelklishin/propertieddefault-position 'bottom)
@@ -66,6 +65,10 @@ values."
      (vue :variables vue-backend 'lsp)
      (node :variables node-add-modules-path)
      (java :variables java-backend 'lsp)
+     ;; https://xiangji.me/ look hier to configure for multiple elixir releases
+     (elixir :variables
+             elixir-backend 'lsp
+             elixir-ls-path (concat (expand-file-name "~") "/.emacs.d/private/elixir-ls/release-1.9.1-otp-22/"))
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -382,6 +385,11 @@ you should place your code here."
   ;; Set exec-path from zsh shell for MACOS
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize))
+
+  ;; Auto formatting on save for elixir
+  (add-hook 'elixir-mode-hook
+            (lambda ()
+              (add-hook 'before-save-hook #'lsp-format-buffer nil t)))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
