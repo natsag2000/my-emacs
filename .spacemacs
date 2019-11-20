@@ -311,6 +311,8 @@ values."
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
    dotspacemacs-whitespace-cleanup nil
+   ;; nagi added for error on reloading test
+   dotspacemacs-mode-line-theme 'spacemacs
    ))
 
 (defun my-setup-indent (n)
@@ -393,6 +395,18 @@ you should place your code here."
   ;; cleanup copied url for git commit
   (fset 'nagi-cleanup-url
         [?\C-y backspace backspace ?\C-a ?\C-d ?\C-d ?\C-  ?\C-s ?\[ ?\C-m ?\C-w ?\C-x ?\(])
+  ;; some of my own keyboard shortcuts
+  (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+  (global-set-key (kbd "C-;") 'comment-or-uncomment-region)
+
+  ;; my org-mode customization
+  ;; see colors from https://en.wikipedia.org/wiki/Web_colors
+  (setq org-log-done t
+        org-todo-keywords '((sequence "TODO" "INPROGRESS" "BLOCKED" "DONE"))
+        org-todo-keyword-faces '(("INPROGRESS" . (:foreground "DarkOrchid" :weight "bold"))
+                                 ("BLOCKED" . "Firebrick")))
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
