@@ -390,6 +390,9 @@ you should place your code here."
   (add-hook 'elixir-mode-hook
             (lambda ()
               (add-hook 'before-save-hook #'lsp-format-buffer nil t)))
+  ;; cleanup copied url for git commit
+  (fset 'cleanup-custom-copied-url
+        [?\C-y backspace backspace ?\C-a ?\C-d ?\C-d ?\C-  ?\C-s ?\[ ?\C-m ?\C-w ?\C-x ?\(])
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
