@@ -33,7 +33,6 @@ This function should only modify configuration layer settings."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     rust
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -41,11 +40,14 @@ This function should only modify configuration layer settings."
      ;; ----------------------------------------------------------------
      auto-completion
      better-defaults
+     dap
      emacs-lisp
+     elixir
      git
      helm
      lsp
      multiple-cursors
+     rust
      org
      (org :variables
           org-enable-reveal-js-support t
@@ -53,9 +55,9 @@ This function should only modify configuration layer settings."
           org-enable-github-support t
           org-enable-sticky-header t)
      org-roam
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
+     (shell :variables
+            shell-default-height 30
+            shell-default-position 'bottom)
      ;; spell-checking
      ;; syntax-checking
      ;; version-control
@@ -73,6 +75,7 @@ This function should only modify configuration layer settings."
    ;; NAGI: installed sqlite3 for org-roam
    dotspacemacs-additional-packages '(
                                       sqlite3
+                                      exec-path-from-shell
                                       )
 
    ;; A list of packages that cannot be updated.
@@ -540,6 +543,8 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
   ;; NAGI - remove .# lock files
   (setq create-lockfiles nil)
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
   )
 
 
