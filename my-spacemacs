@@ -57,6 +57,7 @@ This function should only modify configuration layer settings."
      org-roam
      (shell :variables
             shell-default-height 30
+            shell-default-shell 'vterm
             shell-default-position 'bottom)
      ;; spell-checking
      ;; syntax-checking
