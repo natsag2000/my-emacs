@@ -47,7 +47,8 @@ This function should only modify configuration layer settings."
      helm
      lsp
      multiple-cursors
-     rust
+     (rust :variables
+           rust-format-on-save t)
      org
      (org :variables
           org-enable-reveal-js-support t
@@ -58,7 +59,9 @@ This function should only modify configuration layer settings."
      (shell :variables
             shell-default-height 30
             shell-default-shell 'vterm
-            shell-default-position 'bottom)
+            shell-default-position 'bottom
+            shell-default-full-span nil)
+     (python :variables python-backend 'lsp python-lsp-server 'pyright)
      ;; spell-checking
      ;; syntax-checking
      ;; version-control
