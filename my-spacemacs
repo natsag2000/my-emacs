@@ -577,7 +577,6 @@ before packages are loaded."
         '((:eval (if (buffer-file-name)
                      (abbreviate-file-name (buffer-file-name))
                    "%b"))))
-
   ;; NAGI - remove .# lock files
   (setq create-lockfiles nil)
   (when (memq window-system '(mac ns x))
